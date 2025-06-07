@@ -121,8 +121,8 @@ const handleSignUp = async () => {
       // align-items: center;
       gap: var(--spacing-400);
       padding: var(--spacing-300) var(--spacing-250);
-      border-radius: 12px;
-      box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.05);
+      border-radius: var(--spacing-150);
+      box-shadow: 0 var(--spacing-100) var(--spacing-300) 0 var(--color-shadow-1);
 
       &__title {
         @include text.text-styles('text-preset-1');
@@ -148,7 +148,7 @@ const handleSignUp = async () => {
             height: 45px;
             padding: var(--spacing-150) var(--spacing-250);
             border: 1px solid var(--color-beige-500);
-            border-radius: 8px;
+            border-radius: var(--spacing-100);
           }
 
           .password-tip {
@@ -160,9 +160,9 @@ const handleSignUp = async () => {
 
       &__button {
         width: 100%;
-        padding: 16px;
+        padding: var(--spacing-200);
         background-color: var(--color-grey-900);
-        border-radius: 8px;
+        border-radius: var(--spacing-100);
         border: 1px solid var(--color-grey-200);
         color: var(--color-white);
         @include text.text-styles('text-preset-4-bold');
