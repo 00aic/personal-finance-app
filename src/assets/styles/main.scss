@@ -44,3 +44,16 @@ body {
 #app {
   display: flex;
 }
+
+// 登录后页面的布局与头部样式
+.common-layout-page {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-24) var(--spacing-16);
+  gap: var(--spacing-32);
+
+  .header {
+    @include text.text-styles('text-preset-1');
+    color: var(--grey-900);
+  }
+}

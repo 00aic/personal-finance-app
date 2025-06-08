@@ -47,7 +47,7 @@ const handleMenuClick = (menu: string) => {
 $nav-height: 52px;
 .layout {
   display: flex;
-  gap: var(--spacing-500);
+  gap: var(--spacing-40);
   min-height: 100vh;
   flex-direction: column;
   width: 100vw;
@@ -60,9 +60,9 @@ $nav-height: 52px;
     bottom: 0;
     left: 0;
     width: 100vw;
-    padding: var(--spacing-100) var(--spacing-200) 0 var(--spacing-200);
-    border-top-left-radius: var(--spacing-100);
-    border-top-right-radius: var(--spacing-100);
+    padding: var(--spacing-8) var(--spacing-16) 0 var(--spacing-16);
+    border-top-left-radius: var(--spacing-8);
+    border-top-right-radius: var(--spacing-8);
     z-index: 900;
 
     .menu {
@@ -73,9 +73,9 @@ $nav-height: 52px;
 
       &--active {
         background-color: var(--color-beige-100);
-        border-top-left-radius: var(--spacing-100);
-        border-top-right-radius: var(--spacing-100);
-        border-bottom: var(--spacing-50) solid var(--color-green);
+        border-top-left-radius: var(--spacing-8);
+        border-top-right-radius: var(--spacing-8);
+        border-bottom: var(--spacing-4) solid var(--color-green);
       }
 
       &__icon {
@@ -101,7 +101,7 @@ $nav-height: 52px;
   }
 
   .main {
-    background-color: var(--color-grey-90);
+    background-color: var(--color-beige-100);
     min-height: 100vh;
     padding-bottom: $nav-height;
   }

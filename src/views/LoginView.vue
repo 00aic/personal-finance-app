@@ -23,7 +23,7 @@ const handleLogin = async () => {
   }
 }
 
-const isLogin = ref<boolean>(false)
+const isLogin = ref<boolean>(true)
 
 const handleToSignUp = () => {
   isLogin.value = false
@@ -52,7 +52,13 @@ const handleSignUp = async () => {
           </label>
           <label for="password">
             Password:
-            <input type="password" v-model="loginForm.password" name="password" id="password" />
+            <input
+              type="password"
+              v-model="loginForm.password"
+              name="password"
+              id="password"
+              @keyup.enter="handleLogin"
+            />
           </label>
         </form>
         <button class="container__button" type="submit" @click="handleLogin">Login</button>
@@ -75,7 +81,13 @@ const handleSignUp = async () => {
           </label>
           <label for="password">
             Create Password:
-            <input type="password" v-model="signUpForm.password" name="password" id="password" />
+            <input
+              type="password"
+              v-model="signUpForm.password"
+              name="password"
+              id="password"
+              @keyup.enter="handleSignUp"
+            />
             <div class="password-tip">Passwords must be at least 8 characters</div>
           </label>
         </form>
@@ -119,10 +131,10 @@ const handleSignUp = async () => {
       background-color: var(--color-white);
       width: 343px;
       // align-items: center;
-      gap: var(--spacing-400);
-      padding: var(--spacing-300) var(--spacing-250);
-      border-radius: var(--spacing-150);
-      box-shadow: 0 var(--spacing-100) var(--spacing-300) 0 var(--color-shadow-1);
+      gap: var(--spacing-32);
+      padding: var(--spacing-24) var(--spacing-20);
+      border-radius: var(--spacing-12);
+      box-shadow: 0 var(--spacing-8) var(--spacing-24) 0 var(--color-shadow-1);
 
       &__title {
         @include text.text-styles('text-preset-1');
@@ -133,22 +145,22 @@ const handleSignUp = async () => {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: var(--spacing-200);
+        gap: var(--spacing-16);
         width: 100%;
 
         label {
           width: 100%;
           display: flex;
           flex-direction: column;
-          gap: var(--spacing-50);
+          gap: var(--spacing-4);
           @include text.text-styles('text-preset-5-bold');
           color: var(--color-grey-500);
 
           input {
             height: 45px;
-            padding: var(--spacing-150) var(--spacing-250);
+            padding: var(--spacing-12) var(--spacing-20);
             border: 1px solid var(--color-beige-500);
-            border-radius: var(--spacing-100);
+            border-radius: var(--spacing-8);
           }
 
           .password-tip {
@@ -160,9 +172,9 @@ const handleSignUp = async () => {
 
       &__button {
         width: 100%;
-        padding: var(--spacing-200);
+        padding: var(--spacing-16);
         background-color: var(--color-grey-900);
-        border-radius: var(--spacing-100);
+        border-radius: var(--spacing-8);
         border: 1px solid var(--color-grey-200);
         color: var(--color-white);
         @include text.text-styles('text-preset-4-bold');
@@ -171,7 +183,7 @@ const handleSignUp = async () => {
       &__footer {
         display: flex;
         justify-content: center;
-        gap: var(--spacing-100);
+        gap: var(--spacing-8);
 
         &-tip {
           @include text.text-styles('text-preset-4');

@@ -29,7 +29,7 @@ const chartData = computed(() => ({
 }))
 </script>
 <template>
-  <div class="overview">
+  <div class="overview common-layout-page">
     <header class="header">Overview</header>
 
     <div class="total">
@@ -103,6 +103,19 @@ const chartData = computed(() => ({
             <div class="item__content-time">19 Aug 2024</div>
           </div>
         </div>
+
+        <div class="item">
+          <div class="item__user">
+            <div class="item__user-avatar">
+              <img src="@/assets/images/avatars/emma-richardson.jpg" alt="avatars" />
+            </div>
+            <div class="item__user-name">Emma Richardson</div>
+          </div>
+          <div class="item__content">
+            <div class="item__content-value">+%75.50</div>
+            <div class="item__content-time">19 Aug 2024</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -154,16 +167,6 @@ const chartData = computed(() => ({
 </template>
 <style lang="scss" scoped>
 .overview {
-  display: flex;
-  flex-direction: column;
-  padding: var(--spacing-300) var(--spacing-200);
-  gap: var(--spacing-400);
-
-  .header {
-    @include text.text-styles('text-preset-1');
-    color: var(--grey-900);
-  }
-
   .session-header {
     display: flex;
     justify-content: space-between;
@@ -177,7 +180,7 @@ const chartData = computed(() => ({
       display: flex;
       @include text.text-styles('text-preset-4');
       color: var(--color-grey-500);
-      gap: var(--spacing-150);
+      gap: var(--spacing-12);
     }
   }
 
@@ -185,14 +188,14 @@ const chartData = computed(() => ({
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-200);
+    gap: var(--spacing-16);
 
     &__item {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-50);
+      gap: var(--spacing-4);
       position: relative;
-      padding-left: var(--spacing-200);
+      padding-left: var(--spacing-16);
 
       &::before {
         content: '';
@@ -202,7 +205,7 @@ const chartData = computed(() => ({
         top: 0;
         left: 0;
         bottom: 0;
-        border-radius: var(--spacing-100);
+        border-radius: var(--spacing-8);
         z-index: 0;
       }
 
@@ -220,17 +223,17 @@ const chartData = computed(() => ({
   .total {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-150);
+    gap: var(--spacing-12);
 
     &__balance,
     &__income,
     &__expenses {
       display: flex;
       flex-direction: column;
-      border-radius: var(--spacing-150);
-      box-shadow: 0 var(--spacing-100) var(--spacing-300) 0 var(--color-shadow-1);
-      padding: var(--spacing-250);
-      gap: var(--spacing-150);
+      border-radius: var(--spacing-12);
+      box-shadow: 0 var(--spacing-8) var(--spacing-24) 0 var(--color-shadow-1);
+      padding: var(--spacing-20);
+      gap: var(--spacing-12);
 
       &-label {
         @include text.text-styles('text-preset-4');
@@ -263,24 +266,24 @@ const chartData = computed(() => ({
   .budgets,
   .recurring-bills {
     background-color: var(--color-white);
-    padding: var(--spacing-300) var(--spacing-250);
-    border-radius: var(--spacing-150);
-    box-shadow: 0 var(--spacing-100) var(--spacing-300) 0 var(--color-shadow-1);
+    padding: var(--spacing-24) var(--spacing-20);
+    border-radius: var(--spacing-12);
+    box-shadow: 0 var(--spacing-8) var(--spacing-24) 0 var(--color-shadow-1);
     display: flex;
     flex-direction: column;
   }
 
   .pots {
-    gap: var(--spacing-250);
+    gap: var(--spacing-20);
 
     .total {
       display: flex;
       flex-direction: row;
-      padding: var(--spacing-200);
-      gap: var(--spacing-200);
+      padding: var(--spacing-16);
+      gap: var(--spacing-16);
       background-color: var(--color-beige-100);
-      border-radius: var(--spacing-150);
-      box-shadow: 0 var(--spacing-100) var(--spacing-300) 0 var(--color-shadow-1);
+      border-radius: var(--spacing-12);
+      box-shadow: 0 var(--spacing-8) var(--spacing-24) 0 var(--color-shadow-1);
 
       &__icon {
         display: flex;
@@ -304,20 +307,28 @@ const chartData = computed(() => ({
   }
 
   .transactions {
-    gap: var(--spacing-400);
+    gap: var(--spacing-32);
 
     .details {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-250);
+      gap: var(--spacing-20);
 
       .item {
         display: flex;
         justify-content: space-between;
 
+        border-bottom: 1px solid var(--color-grey-100);
+        padding-bottom: var(--spacing-20);
+
+        &:last-child {
+          border-bottom: none;
+          padding-bottom: none;
+        }
+
         &__user {
           display: flex;
-          gap: var(--spacing-200);
+          gap: var(--spacing-16);
 
           &-avatar {
             width: 32px;
@@ -353,20 +364,20 @@ const chartData = computed(() => ({
   }
 
   .recurring-bills {
-    gap: var(--spacing-400);
+    gap: var(--spacing-32);
 
     .details {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-150);
+      gap: var(--spacing-12);
       background-color: var(--color-beige-100);
 
       &__item {
         display: flex;
         justify-content: space-between;
-        border-radius: var(--spacing-100);
+        border-radius: var(--spacing-8);
         border-left: 4px solid var(--color-green);
-        padding: var(--spacing-250) var(--spacing-200);
+        padding: var(--spacing-20) var(--spacing-16);
         &-label {
           @include text.text-styles('text-preset-4');
           color: var(--color-grey-500);
