@@ -34,7 +34,7 @@ const progressPercentage = computed(() => Math.min((spent / maximum) * 100, 100)
   <div class="budgets common-layout-page">
     <div class="head">
       <header class="header">Budgets</header>
-      <button>ddd</button>
+      <button class="add">+Add New Budget</button>
     </div>
 
     <div class="summary">
@@ -133,6 +133,14 @@ const progressPercentage = computed(() => Math.min((spent / maximum) * 100, 100)
   .head {
     display: flex;
     justify-content: space-between;
+    .add {
+      padding: var(--spacing-16);
+      border-radius: var(--spacing-8);
+      background-color: var(--color-grey-900);
+      border: 1px solid var(--color-grey-200);
+      @include text.text-styles('text-preset-4-bold');
+      color: var(--color-white);
+    }
   }
 
   .summary {
