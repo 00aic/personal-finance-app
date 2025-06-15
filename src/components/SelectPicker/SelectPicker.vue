@@ -22,9 +22,11 @@ const selectedOption = computed(() =>
   props.options.find((option) => option.value === selected.value),
 )
 
+const emit = defineEmits<{ select: [value: string | number] }>()
 const handleSelect = (option: Option) => {
   isOpen.value = false
   selected.value = option.value
+  emit('select', option.value) // 不要用selected.value
 }
 
 const handleDropdown = () => {
@@ -122,8 +124,11 @@ useClickOutside(selectPickerRef, closeDropdown)
       border-radius: var(--spacing-8);
       background-color: var(--color-white);
       box-shadow: 0 4px 24px 0 var(--color-shadow-2);
-      width: 100%;
       min-width: 114px;
+      max-height: 60vh;
+      overflow-y: auto;
+      overscroll-behavior: contain; // 防止滚动穿透
+      white-space: nowrap;
       list-style: none;
       @include text.text-styles('text-preset-4');
       color: var(--color-grey-900);
@@ -135,6 +140,7 @@ useClickOutside(selectPickerRef, closeDropdown)
       &__option {
         border-bottom: 1px solid var(--color-grey-100);
         padding-bottom: var(--spacing-12);
+        cursor: pointer;
         &:last-child {
           border-bottom: none;
           padding-bottom: 0;

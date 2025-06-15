@@ -1,5 +1,7 @@
 // // import { db } from '@/mocks/db'
 
+import type { Category, Sort } from '@/types/transactions'
+
 // declare global {
 //   // MSW响应类型
 //   interface ApiResponse<T> {
@@ -58,4 +60,13 @@ export interface ApiResponse<T> {
   data?: T
   message?: string
   error?: string
+}
+
+// mock数据分页参数类型，因为http url参数只能接收字符串
+export interface PaginationParams {
+  page: string
+  pageSize: string
+  sort: Sort
+  category: Category
+  search?: string
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 interface Props {
   placeholder?: string
@@ -15,6 +15,13 @@ const emit = defineEmits<{ search: [value: string] }>()
 const handleSearch = () => {
   emit('search', searchValue.value)
 }
+
+watch(searchValue, (newValue: string) => {
+  if (!newValue) {
+    // 清空搜索输入框时，执行一次搜索
+    emit('search', searchValue.value)
+  }
+})
 </script>
 <template>
   <div class="search">
