@@ -27,13 +27,16 @@ const budgetData = ref<BudgetData>({
   personal: 100.0,
 })
 
+interface Props {
+  data: ChartData<'doughnut'>
+  limit: number
+}
+
+const props = defineProps<Props>()
+
 const totalSpent = computed(() => {
-  return Object.values(budgetData.value).reduce((sum, amount) => sum + amount, 0)
+  return Object.values(props.data.datasets[0].data).reduce((sum, amount) => sum + amount, 0)
 })
-
-const totalLimit = ref<number>(975)
-
-defineProps<{ data: ChartData<'doughnut'> }>()
 
 const chartOptions = computed<ChartOptions<'doughnut'>>(() => ({
   responsive: false,
@@ -93,10 +96,10 @@ defineExpose({
 <template>
   <div class="chart-container">
     <div class="chart-wrapper">
-      <Doughnut :data="data" :options="chartOptions" :width="200" :height="200" />
+      <Doughnut :data="data" :options="chartOptions" :width="240" :height="240" />
       <div class="chart-center">
         <div class="amount">${{ totalSpent }}</div>
-        <div class="limit">of ${{ totalLimit }} limit</div>
+        <div class="limit">of ${{ limit }} limit</div>
       </div>
     </div>
   </div>

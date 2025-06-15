@@ -2,7 +2,7 @@ import { http, HttpResponse, delay } from 'msw'
 import type { ApiResponse, PaginationParams } from '@/mocks/mock'
 import { apiConfig } from '@/api/config'
 import { getTransactionsByPage } from '@/mocks/db/transactions.mocks'
-import type { Transaction } from '@/types/transactions'
+import type { Transaction } from '@/types/transaction'
 import type { PaginationResponse } from '@/types/pagination'
 
 const baseURL = apiConfig.mockBaseURL

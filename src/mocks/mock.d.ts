@@ -1,6 +1,6 @@
 // // import { db } from '@/mocks/db'
 
-import type { Category, Sort } from '@/types/transactions'
+import type { Category, Sort } from '@/types/transaction'
 
 // declare global {
 //   // MSW响应类型

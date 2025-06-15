@@ -1,14 +1,14 @@
 import type { Pagination, PaginationResponse } from '@/types/pagination'
-import type { Category, Sort, Transaction } from '@/types/transactions'
+import type { Category, Sort, Transaction } from '@/types/transaction'
 import { useLocalStorage } from '@vueuse/core'
 
 // 原始数据
-const originTransactions = [
+const originTransactions: Transaction[] = [
   {
     avatar: 'emma-richardson.jpg',
     name: 'Emma Richardson',
     category: 'General',
-    date: '2024-08-19T14:23:11Z',
+    date: '2025-06-19T14:23:11Z',
     amount: 75.5,
     recurring: false,
   },
@@ -16,7 +16,7 @@ const originTransactions = [
     avatar: 'savory-bites-bistro.jpg',
     name: 'Savory Bites Bistro',
     category: 'Dining Out',
-    date: '2024-08-19T20:23:11Z',
+    date: '2025-06-19T20:23:11Z',
     amount: -55.5,
     recurring: false,
   },
@@ -24,7 +24,7 @@ const originTransactions = [
     avatar: 'daniel-carter.jpg',
     name: 'Daniel Carter',
     category: 'General',
-    date: '2024-08-18T09:45:32Z',
+    date: '2025-06-18T09:45:32Z',
     amount: -42.3,
     recurring: false,
   },
@@ -32,7 +32,7 @@ const originTransactions = [
     avatar: 'sun-park.jpg',
     name: 'Sun Park',
     category: 'General',
-    date: '2024-08-17T16:12:05Z',
+    date: '2025-06-17T16:12:05Z',
     amount: 120.0,
     recurring: false,
   },
@@ -40,7 +40,7 @@ const originTransactions = [
     avatar: 'urban-services-hub.jpg',
     name: 'Urban Services Hub',
     category: 'General',
-    date: '2024-08-17T21:08:09Z',
+    date: '2025-06-17T21:08:09Z',
     amount: -65.0,
     recurring: false,
   },
@@ -48,7 +48,7 @@ const originTransactions = [
     avatar: 'liam-hughes.jpg',
     name: 'Liam Hughes',
     category: 'Groceries',
-    date: '2024-08-15T18:20:33Z',
+    date: '2025-06-15T18:20:33Z',
     amount: 65.75,
     recurring: false,
   },
@@ -56,7 +56,7 @@ const originTransactions = [
     avatar: 'lily-ramirez.jpg',
     name: 'Lily Ramirez',
     category: 'General',
-    date: '2024-08-14T13:05:27Z',
+    date: '2025-06-14T13:05:27Z',
     amount: 50.0,
     recurring: false,
   },
@@ -64,7 +64,7 @@ const originTransactions = [
     avatar: 'ethan-clark.jpg',
     name: 'Ethan Clark',
     category: 'Dining Out',
-    date: '2024-08-13T20:15:59Z',
+    date: '2025-06-13T20:15:59Z',
     amount: -32.5,
     recurring: false,
   },
@@ -72,7 +72,7 @@ const originTransactions = [
     avatar: 'james-thompson.jpg',
     name: 'James Thompson',
     category: 'Entertainment',
-    date: '2024-08-11T15:45:38Z',
+    date: '2025-06-11T15:45:38Z',
     amount: -5.0,
     recurring: false,
   },
@@ -80,7 +80,7 @@ const originTransactions = [
     avatar: 'pixel-playground.jpg',
     name: 'Pixel Playground',
     category: 'Entertainment',
-    date: '2024-08-11T18:45:38Z',
+    date: '2025-06-11T18:45:38Z',
     amount: -10.0,
     recurring: true,
   },
@@ -88,7 +88,7 @@ const originTransactions = [
     avatar: 'ella-phillips.jpg',
     name: 'Ella Phillips',
     category: 'Dining Out',
-    date: '2024-08-10T19:22:51Z',
+    date: '2025-06-10T19:22:51Z',
     amount: -45.0,
     recurring: false,
   },
@@ -96,7 +96,7 @@ const originTransactions = [
     avatar: 'sofia-peterson.jpg',
     name: 'Sofia Peterson',
     category: 'Transportation',
-    date: '2024-08-08T08:55:17Z',
+    date: '2025-06-08T08:55:17Z',
     amount: -15.0,
     recurring: false,
   },
@@ -104,7 +104,7 @@ const originTransactions = [
     avatar: 'mason-martinez.jpg',
     name: 'Mason Martinez',
     category: 'Lifestyle',
-    date: '2024-08-07T17:40:29Z',
+    date: '2025-06-07T17:40:29Z',
     amount: -35.25,
     recurring: false,
   },
@@ -112,7 +112,7 @@ const originTransactions = [
     avatar: 'green-plate-eatery.jpg',
     name: 'Green Plate Eatery',
     category: 'Groceries',
-    date: '2024-08-06T08:25:44Z',
+    date: '2025-06-06T08:25:44Z',
     amount: -78.5,
     recurring: false,
   },
@@ -120,7 +120,7 @@ const originTransactions = [
     avatar: 'sebastian-cook.jpg',
     name: 'Sebastian Cook',
     category: 'Transportation',
-    date: '2024-08-06T10:05:44Z',
+    date: '2025-06-06T10:05:44Z',
     amount: -22.5,
     recurring: false,
   },
@@ -128,7 +128,7 @@ const originTransactions = [
     avatar: 'william-harris.jpg',
     name: 'William Harris',
     category: 'Personal Care',
-    date: '2024-08-05T14:30:56Z',
+    date: '2025-06-05T14:30:56Z',
     amount: -10.0,
     recurring: false,
   },
@@ -136,7 +136,7 @@ const originTransactions = [
     avatar: 'elevate-education.jpg',
     name: 'Elevate Education',
     category: 'Education',
-    date: '2024-08-04T11:15:22Z',
+    date: '2025-06-04T11:15:22Z',
     amount: -50.0,
     recurring: true,
   },
@@ -144,7 +144,7 @@ const originTransactions = [
     avatar: 'serenity-spa-and-wellness.jpg',
     name: 'Serenity Spa & Wellness',
     category: 'Personal Care',
-    date: '2024-08-03T14:00:37Z',
+    date: '2025-06-03T14:00:37Z',
     amount: -30.0,
     recurring: true,
   },
@@ -152,7 +152,7 @@ const originTransactions = [
     avatar: 'spark-electric-solutions.jpg',
     name: 'Spark Electric Solutions',
     category: 'Bills',
-    date: '2024-08-02T09:25:11Z',
+    date: '2025-06-02T09:25:11Z',
     amount: -100.0,
     recurring: true,
   },
@@ -160,7 +160,7 @@ const originTransactions = [
     avatar: 'rina-sato.jpg',
     name: 'Rina Sato',
     category: 'Bills',
-    date: '2024-08-02T13:31:11Z',
+    date: '2025-06-02T13:31:11Z',
     amount: -50.0,
     recurring: false,
   },
@@ -168,7 +168,7 @@ const originTransactions = [
     avatar: 'swift-ride-share.jpg',
     name: 'Swift Ride Share',
     category: 'Transportation',
-    date: '2024-08-01T18:40:33Z',
+    date: '2025-06-01T18:40:33Z',
     amount: -18.75,
     recurring: false,
   },
@@ -398,7 +398,7 @@ const originTransactions = [
   },
 ]
 // 缓存数据
-const transactions = useLocalStorage('transactions', originTransactions)
+const transactions = useLocalStorage<Transaction[]>('transactions', originTransactions)
 
 // 分页
 const paginate = (pagination: Pagination): Transaction[] => {
@@ -408,6 +408,16 @@ const paginate = (pagination: Pagination): Transaction[] => {
   getTransactionsBySortAndCategory(sort, category)
   getTransactionsBySearch(search)
   return transactions.value.slice(start, end)
+}
+
+// 获取所有交易数据
+export const getAllTransactions = () => {
+  return originTransactions
+}
+// 根据类别获取最近的三笔交易数据
+export const getLatestTransactionsByCategory = (category: Category) => {
+  getTransactionsBySortAndCategory('latest', category)
+  return transactions.value.slice(0, 3)
 }
 
 // 分页获取数据

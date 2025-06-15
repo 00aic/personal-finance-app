@@ -3,10 +3,14 @@ import { getTransactionsByPage } from '@/api/modules/transactions'
 import SearchInput from '@/components/SearchInput'
 import SelectPicker from '@/components/SelectPicker'
 import { useImageUrl } from '@/composables/useImageUrl'
-import type { Transaction } from '@/types/transactions'
+import type { Transaction } from '@/types/transaction'
 import { computed, onMounted, ref } from 'vue'
 import { formatIntlDate } from '@/utils/dateUtils'
 import { formatNumber } from '@/utils/numberUtils'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
 const searchValue = ref<string>()
 // 搜索
 const handleSearch = async (value: string) => {
@@ -122,6 +126,10 @@ const getTransactions = async () => {
   totalPage.value = Math.ceil(result.total / pageSize.value)
 }
 onMounted(async () => {
+  if (route.query.category) {
+    categoryValue.value = route.query.category as string
+  }
+
   await getTransactions()
 })
 // 上一页

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { layoutViewRoutes } from '@/router'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -9,6 +9,10 @@ const activeMenu = ref(route.name) // 当前选中的菜单
 const handleMenuClick = (menu: string) => {
   activeMenu.value = menu
 }
+
+watch(route, (newRoute) => {
+  activeMenu.value = newRoute.name
+})
 </script>
 <template>
   <div class="layout">

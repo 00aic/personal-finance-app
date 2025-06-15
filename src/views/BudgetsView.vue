@@ -1,34 +1,62 @@
 <script setup lang="ts">
+import { getBudgetsWithTransactions } from '@/api/modules/budgets'
 import BudgetsDoughnut from '@/components/BudgetsDoughnut'
-import { computed } from 'vue'
-const colors = {
-  entertainment: '#F4A58A',
-  bills: '#4ECDC4',
-  dining: '#FFD93D',
-  personal: '#6B73FF',
-}
+import type { Budget } from '@/types/budget'
+import { computed, onMounted, ref } from 'vue'
+import { formatNumber } from '@/utils/numberUtils'
+import { formatIntlDate } from '@/utils/dateUtils'
+import { useImageUrl } from '@/composables/useImageUrl'
+import type { Category } from '@/types/transaction'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const budgets = ref<Budget[]>([])
+onMounted(async () => {
+  budgets.value = (await getBudgetsWithTransactions()).data
+})
 
 const chartData = computed(() => ({
-  labels: ['Entertainment', 'Bills', 'Dining Out', 'Personal Care'],
+  labels: budgetsWithProgress.value.map((item) => item.category),
   datasets: [
     {
-      data: [50.0, 750.0, 75.0, 100.0],
-      backgroundColor: [colors.entertainment, colors.bills, colors.dining, colors.personal],
-      hoverBackgroundColor: [
-        colors.entertainment + 'CC',
-        colors.bills + 'CC',
-        colors.dining + 'CC',
-        colors.personal + 'CC',
-      ],
+      data: budgetsWithProgress.value.map((item) => item.spent ?? 0),
+      backgroundColor: budgetsWithProgress.value.map((item) => item.theme),
+      hoverBackgroundColor: budgetsWithProgress.value.map((item) => item.theme + 'CC'),
       borderWidth: 0,
-      cutout: '70%',
-      hoverOffset: 4,
+      cutout: '60%',
+      hoverOffset: budgetsWithProgress.value.length,
     },
   ],
 }))
-const maximum = 50
-const spent = 25
-const progressPercentage = computed(() => Math.min((spent / maximum) * 100, 100))
+const budgetsWithProgress = computed(() => {
+  return budgets.value.map((item) => {
+    const remaining = item.maximum - (item.spent ?? 0)
+    return {
+      ...item,
+      remaining: remaining < 0 ? 0 : remaining,
+      progressPercentage: Math.min(((item.spent ?? 0) / item.maximum) * 100, 100),
+    }
+  })
+})
+// 图标总花费数
+const chartLimit = computed(() =>
+  budgetsWithProgress.value.reduce((sum, item) => sum + item.maximum, 0),
+)
+// 格式化金额
+const formatAmount = (amount: number) => {
+  return formatNumber(amount, { currency: 'USD' })
+}
+const handleSeeAll = (category: Category) => {
+  router.push({
+    name: 'Transactions',
+    query: {
+      category: category,
+    },
+  })
+}
+
+const handleActions = () => {}
 </script>
 <template>
   <div class="budgets common-layout-page">
@@ -38,53 +66,59 @@ const progressPercentage = computed(() => Math.min((spent / maximum) * 100, 100)
     </div>
 
     <div class="summary">
-      <BudgetsDoughnut :data="chartData" />
+      <BudgetsDoughnut :data="chartData" :limit="chartLimit" />
       <div class="spending">
         <div class="header">Spending Summary</div>
         <div class="details">
-          <div class="item">
-            <div class="item__label">Bills</div>
+          <div
+            class="item"
+            v-for="(item, index) in budgetsWithProgress"
+            :key="`budget-${index}`"
+            :style="{ '--color-budget-border': item.theme }"
+          >
+            <div class="item__label">{{ item.category }}</div>
             <div class="item__value">
-              <span class="item__value-spent">$150.00</span>
-              <span class="item__value-total">of $750.00</span>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="item__label">Bills</div>
-            <div class="item__value">
-              <span class="item__value-spent">$150.00</span>
-              <span class="item__value-total">of $750.00</span>
+              <span class="item__value-spent">{{ formatAmount(item.spent ?? 0) }}</span>
+              <span class="item__value-total">of {{ formatAmount(item.maximum) }}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="details">
+    <div
+      class="details"
+      v-for="(item, index) in budgetsWithProgress"
+      :key="index"
+      :style="{ '--color-budget-progress': item.theme }"
+    >
       <div class="header">
         <div class="header__title">
           <div class="header__title-circle"></div>
-          <div class="header__title-name">Entertainment</div>
+          <div class="header__title-name">{{ item.category }}</div>
         </div>
-        <div class="header__more">
+        <div class="header__more" @click="handleActions">
           <img src="@/assets/images/icon-ellipsis.svg" alt="ellipsis" />
         </div>
       </div>
 
       <div class="amount">
-        <div class="maximum">Maximum of ${{ maximum }}</div>
+        <div class="maximum">Maximum of ${{ item.maximum }}</div>
         <div class="progress">
-          <div class="progress__fill" :style="{ width: `${progressPercentage}%` }"></div>
+          <div class="progress__fill" :style="{ width: `${item.progressPercentage}%` }"></div>
         </div>
         <div class="detail">
           <div class="detail__spent">
             <div class="detail__spent-label">Spent</div>
-            <div class="detail__spent-value">${{ spent }}</div>
+            <div class="detail__spent-value">
+              {{ formatAmount(item.spent ?? 0) }}
+            </div>
           </div>
           <div class="detail__remaining">
             <div class="detail__remaining-label">Remaining</div>
-            <div class="detail__remaining-value">$25.00</div>
+            <div class="detail__remaining-value">
+              {{ formatAmount(item.remaining) }}
+            </div>
           </div>
         </div>
       </div>
@@ -92,35 +126,24 @@ const progressPercentage = computed(() => Math.min((spent / maximum) * 100, 100)
       <div class="latest">
         <div class="header">
           <div class="header__title">Latest Spending</div>
-          <div class="header__action">
+          <div class="header__action" @click="handleSeeAll(item.category)">
             <div>See All</div>
             <div><img src="@/assets/images/icon-caret-right.svg" alt="more" /></div>
           </div>
         </div>
         <div class="items">
-          <div class="item">
+          <div class="item" v-for="(trac, index) in item.transactions" :key="`trac${index}`">
             <div class="item__user">
               <div class="item__user-avatar">
-                <img src="@/assets/images/avatars/james-thompson.jpg" alt="avatar" />
+                <img :src="useImageUrl(trac.avatar).value" alt="avatar" />
               </div>
-              <div class="item__user-name">James Thompson</div>
+              <div class="item__user-name">{{ trac.name }}</div>
             </div>
             <div class="item__content">
-              <div class="item__content-value">-$5.00</div>
-              <div class="item__content-time">11 Aug 2024</div>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="item__user">
-              <div class="item__user-avatar">
-                <img src="@/assets/images/avatars/james-thompson.jpg" alt="avatar" />
+              <div class="item__content-value">
+                {{ formatAmount(trac.amount) }}
               </div>
-              <div class="item__user-name">James Thompson</div>
-            </div>
-            <div class="item__content">
-              <div class="item__content-value">-$5.00</div>
-              <div class="item__content-time">11 Aug 2024</div>
+              <div class="item__content-time">{{ formatIntlDate(trac.date) }}</div>
             </div>
           </div>
         </div>
@@ -169,14 +192,18 @@ const progressPercentage = computed(() => Math.min((spent / maximum) * 100, 100)
         .item {
           display: flex;
           justify-content: space-between;
+          align-items: center;
+          position: relative;
+          padding-left: var(--spacing-16);
 
           &::before {
             content: '';
             top: 0;
             left: 0;
-            bottom: 0;
+            bottom: var(--spacing-16); // 从底部向上缩进,避免左边框高度把padding-bottom也算上了
             border-radius: var(--spacing-8);
-            border-left: 4px solid var(--color-cyan);
+            border-left: 4px solid var(--color-budget-border);
+            position: absolute;
           }
 
           border-bottom: 1px solid var(--color-grey-100);
@@ -185,6 +212,10 @@ const progressPercentage = computed(() => Math.min((spent / maximum) * 100, 100)
           &:last-child {
             border-bottom: none;
             padding-bottom: 0;
+
+            &::before {
+              bottom: 0;
+            }
           }
 
           &__label {
@@ -231,7 +262,7 @@ const progressPercentage = computed(() => Math.min((spent / maximum) * 100, 100)
           width: 16px;
           height: 16px;
           border-radius: 50%;
-          background-color: var(--color-green);
+          background-color: var(--color-budget-progress);
         }
         &-name {
           @include text.text-styles('text-preset-2');
@@ -264,7 +295,7 @@ const progressPercentage = computed(() => Math.min((spent / maximum) * 100, 100)
         &__fill {
           height: 100%;
           border-radius: var(--spacing-4);
-          background-color: var(--color-green);
+          background-color: var(--color-budget-progress);
         }
       }
 
@@ -303,7 +334,7 @@ const progressPercentage = computed(() => Math.min((spent / maximum) * 100, 100)
 
         &__spent {
           &::before {
-            background-color: var(--color-green);
+            background-color: var(--color-budget-progress);
           }
         }
         &__remaining {
