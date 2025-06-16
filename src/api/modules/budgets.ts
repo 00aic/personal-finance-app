@@ -1,5 +1,6 @@
 import type { Budget } from '@/types/budget'
 import http from '@/api/http'
+import type { Category } from '@/types/transaction'
 
 export const getBudgets = () => {
   return http.get<Budget[]>('/budgets')
@@ -7,4 +8,8 @@ export const getBudgets = () => {
 
 export const getBudgetsWithTransactions = () => {
   return http.get<Budget[]>('/budgets/category')
+}
+
+export const deleteBudgetWithCategory = (category: Category) => {
+  return http.delete(`/budgets/${category}`)
 }

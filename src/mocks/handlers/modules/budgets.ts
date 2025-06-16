@@ -1,7 +1,12 @@
 import { apiConfig } from '@/api/config'
-import { getBudgets, getBudgetsWithTransactions } from '@/mocks/db/budgets.mocks'
+import {
+  deleteBudgetWithCategory,
+  getBudgets,
+  getBudgetsWithTransactions,
+} from '@/mocks/db/budgets.mocks'
 import type { ApiResponse } from '@/mocks/mock'
 import type { Budget } from '@/types/budget'
+import type { Category } from '@/types/transaction'
 import { delay, http, HttpResponse } from 'msw'
 
 const baseURL = apiConfig.mockBaseURL
@@ -22,6 +27,15 @@ const handlers = [
     return HttpResponse.json({
       code: 200,
       data: budgets,
+    })
+  }),
+
+  http.delete(`${baseURL}/budgets/:category`, async ({ params }) => {
+    await delay(1)
+    const category = params.category as Category
+    deleteBudgetWithCategory(category)
+    return HttpResponse.json({
+      code: 200,
     })
   }),
 ]

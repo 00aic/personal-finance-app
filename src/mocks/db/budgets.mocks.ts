@@ -1,6 +1,7 @@
 import type { Budget } from '@/types/budget'
 import { useLocalStorage } from '@vueuse/core'
 import { getAllTransactions, getLatestTransactionsByCategory } from './transactions.mocks'
+import type { Category } from '@/types/transaction'
 
 const originBudgets: Budget[] = [
   {
@@ -59,4 +60,8 @@ export const getBudgetsWithTransactions = () => {
     ...item,
     transactions: getLatestTransactionsByCategory(item.category),
   }))
+}
+
+export const deleteBudgetWithCategory = (category: Category) => {
+  budgets.value = budgets.value.filter((item) => item.category !== category)
 }
