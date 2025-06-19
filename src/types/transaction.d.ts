@@ -1,3 +1,5 @@
+import { CATEGORY_TYPE_WITH_ALL } from '@/constants/categories'
+
 export interface Transaction {
   avatar: string
   name: string
@@ -9,15 +11,4 @@ export interface Transaction {
 
 export type Sort = 'latest' | 'oldest' | 'az' | 'za' | 'highest' | 'lowest'
 
-export type Category =
-  | 'all'
-  | 'Entertainment'
-  | 'Bills'
-  | 'Groceries'
-  | 'Dining Out'
-  | 'Transportation'
-  | 'Personal Care'
-  | 'Education'
-  | 'Lifestyle'
-  | 'Shopping'
-  | 'General'
+export type Category = (typeof CATEGORY_TYPE_WITH_ALL)[number]

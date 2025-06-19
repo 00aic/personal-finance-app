@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { deleteBudgetWithCategory, getBudgetsWithTransactions } from '@/api/modules/budgets'
+import {
+  addBudget,
+  deleteBudgetWithCategory,
+  getBudgetsWithTransactions,
+  updateBudget,
+} from '@/api/modules/budgets'
 import BudgetsDoughnut from '@/components/BudgetsDoughnut'
 import type { Budget } from '@/types/budget'
 import { computed, onMounted, ref } from 'vue'
@@ -10,12 +15,16 @@ import type { Category } from '@/types/transaction'
 import { useRouter } from 'vue-router'
 import DropdownButton from '@/components/DropdownButton'
 import ConfirmationDialog from '@/components/ConfirmationDialog'
+import UpsertBudget from './UpsertBudget.vue'
 
 const router = useRouter()
 
 const budgets = ref<Budget[]>([])
-onMounted(async () => {
+const getBudgets = async () => {
   budgets.value = (await getBudgetsWithTransactions()).data
+}
+onMounted(async () => {
+  await getBudgets()
 })
 
 const chartData = computed(() => ({
@@ -71,23 +80,44 @@ const actionOptions = [
 ]
 // 是否显示删除提示框
 const showDeleteDialog = ref<boolean>(false)
+// 是否显示编辑框
+const showEditDialog = ref<boolean>(false)
 const handleActions = (selected: string) => {
   // 删除操作
   if ('delete' === selected) {
     showDeleteDialog.value = true
+  } else {
+    // 编辑操作
+    showEditDialog.value = true
   }
 }
 const handleDelete = async (category: Category) => {
   await deleteBudgetWithCategory(category)
-  budgets.value = (await getBudgetsWithTransactions()).data
+  await getBudgets()
+}
+
+const showAddDialog = ref<boolean>(false)
+const handleShowAddDialog = () => {
+  showAddDialog.value = true
+}
+
+const handleBudgetAdd = async (budget: Budget) => {
+  await addBudget(budget)
+  await getBudgets()
+}
+const handleBudgetUpdate = async (budget: Budget) => {
+  await updateBudget(budget)
+  await getBudgets()
 }
 </script>
 <template>
   <div class="budgets common-layout-page">
     <div class="head">
       <header class="header">Budgets</header>
-      <button class="add">+Add New Budget</button>
+      <button class="add" @click="handleShowAddDialog">+Add New Budget</button>
     </div>
+
+    <UpsertBudget v-model="showAddDialog" @upsert="handleBudgetAdd" />
 
     <div class="summary">
       <BudgetsDoughnut :data="chartData" :limit="chartLimit" />
@@ -131,6 +161,8 @@ const handleDelete = async (category: Category) => {
         cancel-text="No, Go Back"
         @confirm="handleDelete(item.category)"
       />
+
+      <UpsertBudget :data="item" v-model="showEditDialog" @upsert="handleBudgetUpdate" />
 
       <div class="amount">
         <div class="maximum">Maximum of ${{ item.maximum }}</div>

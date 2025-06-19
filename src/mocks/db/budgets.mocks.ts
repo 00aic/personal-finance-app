@@ -65,3 +65,19 @@ export const getBudgetsWithTransactions = () => {
 export const deleteBudgetWithCategory = (category: Category) => {
   budgets.value = budgets.value.filter((item) => item.category !== category)
 }
+
+export const addBudget = (budget: Budget) => {
+  budgets.value.push(budget)
+}
+
+export const updateBudget = (budget: Budget) => {
+  budgets.value = budgets.value.map((item) => {
+    if (item.category === budget.category) {
+      return {
+        ...item,
+        ...budget,
+      }
+    }
+    return item
+  })
+}

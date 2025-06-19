@@ -8,6 +8,7 @@ import { computed, onMounted, ref } from 'vue'
 import { formatIntlDate } from '@/utils/dateUtils'
 import { formatNumber } from '@/utils/numberUtils'
 import { useRoute } from 'vue-router'
+import { CATEGORY_OPTIONS_WITH_ALL } from '@/constants/categories'
 
 const route = useRoute()
 
@@ -53,52 +54,6 @@ const handleSort = async () => {
 
 const categoryValue = ref<string>('all')
 
-const categoryOptions = [
-  {
-    label: 'All Transactions',
-    value: 'all',
-  },
-  {
-    label: 'Entertainment',
-    value: 'Entertainment',
-  },
-  {
-    label: 'Bills',
-    value: 'Bills',
-  },
-  {
-    label: 'Groceries',
-    value: 'Groceries',
-  },
-  {
-    label: 'Dining Out',
-    value: 'Dining Out',
-  },
-  {
-    label: 'Transportation',
-    value: 'Transportation',
-  },
-  {
-    label: 'Personal Care',
-    value: 'Personal Care',
-  },
-  {
-    label: 'Education',
-    value: 'Education',
-  },
-  {
-    label: 'Lifestyle',
-    value: 'Lifestyle',
-  },
-  {
-    label: 'Shopping',
-    value: 'Shopping',
-  },
-  {
-    label: 'General',
-    value: 'General',
-  },
-]
 // 按分类过滤
 const handleFilterCategory = async () => {
   await getTransactions()
@@ -214,7 +169,7 @@ const handleShowEllipsisPage = async () => {
             img-src="icon-filter-mobile.svg"
             label="Category"
             v-model="categoryValue"
-            :options="categoryOptions"
+            :options="CATEGORY_OPTIONS_WITH_ALL"
             @select="handleFilterCategory"
           />
         </div>

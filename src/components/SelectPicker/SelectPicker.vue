@@ -12,6 +12,7 @@ interface Props {
   options: Option[]
   label?: string
   imgSrc?: string
+  width?: string
 }
 const props = defineProps<Props>()
 
@@ -33,8 +34,14 @@ const handleDropdown = () => {
   isOpen.value = !isOpen.value
 }
 
-const isMobile = useMediaQuery('(max-width: 375px)')
-console.log('isMobile', isMobile)
+// 手机媒介
+const isMobileMedia = useMediaQuery('(max-width: 375px)')
+console.log('isMobileMedia', isMobileMedia)
+
+// 是否根据手机媒介显示手机样式
+const isMobile = computed(() => {
+  return isMobileMedia.value && props.imgSrc
+})
 
 const mobileImg = computed(() => {
   return isMobile.value ? useImageUrl(props.imgSrc ?? '').value : ''
@@ -50,7 +57,7 @@ useClickOutside(selectPickerRef, closeDropdown)
   <div class="select" ref="selectPickerRef">
     <div v-if="label && !isMobile" class="label">{{ label }}</div>
     <div class="wrapper">
-      <div class="header" @click="handleDropdown" v-if="!isMobile">
+      <div class="header vee-form" @click="handleDropdown" v-if="!isMobile">
         <span class="header__label">{{ selectedOption?.label }}</span>
         <div class="header__icon">
           <img src="@/assets/images/icon-caret-down.svg" alt="select" />
@@ -59,7 +66,7 @@ useClickOutside(selectPickerRef, closeDropdown)
       <div class="header-img" v-if="isMobile" @click="handleDropdown">
         <img :src="mobileImg" alt="abbrev" />
       </div>
-      <ul class="options" v-if="isOpen">
+      <ul class="options" v-if="isOpen" :style="{ width: width }">
         <li
           v-for="option in options"
           :key="option.value"
@@ -87,6 +94,7 @@ useClickOutside(selectPickerRef, closeDropdown)
   .wrapper {
     position: relative;
     display: flex;
+    flex: 1;
 
     .header-img {
       display: flex;
@@ -95,14 +103,17 @@ useClickOutside(selectPickerRef, closeDropdown)
 
     .header {
       display: flex;
+      flex: 1;
       gap: var(--spacing-16);
       align-items: center;
       padding: var(--spacing-12) var(--spacing-20);
       border-radius: var(--spacing-8);
       background-color: var(--color-white);
       border: 1px solid var(--color-beige-500);
+      cursor: pointer;
 
       &__label {
+        flex: 1;
         @include text.text-styles('text-preset-4');
         color: var(--color-grey-900);
       }
@@ -114,9 +125,11 @@ useClickOutside(selectPickerRef, closeDropdown)
     }
 
     .options {
+      z-index: 1000;
       position: absolute;
       top: calc(100% + 8px);
       right: 0;
+      // width: 100%;
       display: flex;
       flex-direction: column;
       gap: var(--spacing-12);
@@ -124,7 +137,7 @@ useClickOutside(selectPickerRef, closeDropdown)
       border-radius: var(--spacing-8);
       background-color: var(--color-white);
       box-shadow: 0 4px 24px 0 var(--color-shadow-2);
-      min-width: 114px;
+      // min-width: 114px;
       max-height: 60vh;
       overflow-y: auto;
       overscroll-behavior: contain; // 防止滚动穿透

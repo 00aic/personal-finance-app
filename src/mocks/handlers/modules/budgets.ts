@@ -1,8 +1,10 @@
 import { apiConfig } from '@/api/config'
 import {
+  addBudget,
   deleteBudgetWithCategory,
   getBudgets,
   getBudgetsWithTransactions,
+  updateBudget,
 } from '@/mocks/db/budgets.mocks'
 import type { ApiResponse } from '@/mocks/mock'
 import type { Budget } from '@/types/budget'
@@ -14,7 +16,7 @@ const baseURL = apiConfig.mockBaseURL
 const handlers = [
   http.get<never, never, ApiResponse<Budget[]>>(`${baseURL}/budgets`, async ({}) => {
     await delay(1) // 模拟网络延迟
-    const budgets = getBudgets()
+    const budgets = await getBudgets()
     return HttpResponse.json({
       code: 200,
       data: budgets,
@@ -23,7 +25,7 @@ const handlers = [
 
   http.get<never, never, ApiResponse<Budget[]>>(`${baseURL}/budgets/category`, async ({}) => {
     await delay(1) // 模拟网络延迟
-    const budgets = getBudgetsWithTransactions()
+    const budgets = await getBudgetsWithTransactions()
     return HttpResponse.json({
       code: 200,
       data: budgets,
@@ -33,7 +35,25 @@ const handlers = [
   http.delete(`${baseURL}/budgets/:category`, async ({ params }) => {
     await delay(1)
     const category = params.category as Category
-    deleteBudgetWithCategory(category)
+    await deleteBudgetWithCategory(category)
+    return HttpResponse.json({
+      code: 200,
+    })
+  }),
+
+  http.post<never, Budget, ApiResponse<void>>(`${baseURL}/budgets`, async ({ request }) => {
+    await delay(1)
+    const budget = await request.json()
+    await addBudget(budget)
+    return HttpResponse.json({
+      code: 200,
+    })
+  }),
+
+  http.put<never, Budget, ApiResponse<void>>(`${baseURL}/budgets`, async ({ request }) => {
+    await delay(1)
+    const budget = await request.json()
+    await updateBudget(budget)
     return HttpResponse.json({
       code: 200,
     })

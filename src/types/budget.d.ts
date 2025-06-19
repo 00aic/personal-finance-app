@@ -6,4 +6,5 @@ export interface Budget {
   theme: string
   spent?: number
   transactions?: Transaction[]
+  remaining?: number
 }

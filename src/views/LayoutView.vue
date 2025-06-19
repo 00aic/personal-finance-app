@@ -32,8 +32,8 @@ watch(route, (newRoute) => {
           <svg
             fill="currentColor"
             stroke="currentColor"
-            height="19"
-            viewBox="0 0 18 19"
+            height="20"
+            viewBox="0 0 20 20"
             width="18"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -91,8 +91,8 @@ $nav-height: 52px;
         color: var(--color-grey-300);
 
         svg {
-          width: 18px;
-          height: 19px;
+          width: 20px;
+          height: 20px;
           fill: currentColor; /* 使用 currentColor 来让 SVG 使用父元素的颜色 */
           stroke: currentColor; /* 使用 currentColor 来设置边框颜色 */
         }
