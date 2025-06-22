@@ -67,6 +67,16 @@ const handleSeeAll = (category: Category) => {
   })
 }
 
+const showAddDialog = ref<boolean>(false)
+const handleShowAddDialog = () => {
+  showAddDialog.value = true
+}
+
+const handleBudgetAdd = async (budget: Budget) => {
+  await addBudget(budget)
+  await getBudgets()
+}
+
 // 操作按钮下拉选项
 const actionOptions = [
   {
@@ -82,7 +92,9 @@ const actionOptions = [
 const showDeleteDialog = ref<boolean>(false)
 // 是否显示编辑框
 const showEditDialog = ref<boolean>(false)
-const handleActions = (selected: string) => {
+const currentItem = ref<Budget>({})
+const handleActions = (selected: string, item: Budget) => {
+  currentItem.value = item
   // 删除操作
   if ('delete' === selected) {
     showDeleteDialog.value = true
@@ -91,20 +103,11 @@ const handleActions = (selected: string) => {
     showEditDialog.value = true
   }
 }
-const handleDelete = async (category: Category) => {
+const handleBudgetDelete = async (category: Category) => {
   await deleteBudgetWithCategory(category)
   await getBudgets()
 }
 
-const showAddDialog = ref<boolean>(false)
-const handleShowAddDialog = () => {
-  showAddDialog.value = true
-}
-
-const handleBudgetAdd = async (budget: Budget) => {
-  await addBudget(budget)
-  await getBudgets()
-}
 const handleBudgetUpdate = async (budget: Budget) => {
   await updateBudget(budget)
   await getBudgets()
@@ -151,18 +154,11 @@ const handleBudgetUpdate = async (budget: Budget) => {
           <div class="header__title-circle"></div>
           <div class="header__title-name">{{ item.category }}</div>
         </div>
-        <DropdownButton :options="actionOptions" @select="handleActions" />
+        <DropdownButton
+          :options="actionOptions"
+          @select="(selected) => handleActions(selected, item)"
+        />
       </div>
-      <ConfirmationDialog
-        v-model="showDeleteDialog"
-        :title="`Delete '${item.category}'?`"
-        message="Are you sure you want to delete this budget? This action cannot be reversed, and all the data inside it will be removed forever."
-        confirm-text="Yes, Confirm Deletion"
-        cancel-text="No, Go Back"
-        @confirm="handleDelete(item.category)"
-      />
-
-      <UpsertBudget :data="item" v-model="showEditDialog" @upsert="handleBudgetUpdate" />
 
       <div class="amount">
         <div class="maximum">Maximum of ${{ item.maximum }}</div>
@@ -211,6 +207,16 @@ const handleBudgetUpdate = async (budget: Budget) => {
         </div>
       </div>
     </div>
+    <ConfirmationDialog
+      v-model="showDeleteDialog"
+      :title="`Delete '${currentItem.category}'?`"
+      message="Are you sure you want to delete this budget? This action cannot be reversed, and all the data inside it will be removed forever."
+      confirm-text="Yes, Confirm Deletion"
+      cancel-text="No, Go Back"
+      @confirm="handleBudgetDelete(currentItem.category)"
+    />
+
+    <UpsertBudget :data="currentItem" v-model="showEditDialog" @upsert="handleBudgetUpdate" />
   </div>
 </template>
 <style lang="scss" scoped>

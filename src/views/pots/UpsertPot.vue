@@ -1,41 +1,40 @@
 <script setup lang="ts">
 import BaseDialog from '@/components/BaseDialog'
-import type { Budget } from '@/types/budget'
+import type { Pot } from '@/types/pot'
 import { computed, ref, watch } from 'vue'
-import FormItem from '@/components/FormItem'
-import SelectPicker from '@/components/SelectPicker'
-import { CATEGORY_OPTIONS } from '@/constants/categories'
 import { COLOR_OPTIONS } from '@/constants/colors'
-import BaseInput from '@/components/BaseInput'
+import SelectPicker from '@/components/SelectPicker'
+import FormItem from '@/components/FormItem'
 import * as yup from 'yup'
 import { useForm } from 'vee-validate'
+import BaseInput from '@/components/BaseInput'
 
 const visible = defineModel<boolean>({ default: false })
+
 interface Props {
-  data?: Budget
+  data?: Pot
 }
 const props = defineProps<Props>()
-const title = computed(() => {
-  return props?.data?.category ? 'Edit Budget' : 'Add New Budget'
-})
 
+const title = computed(() => (props.data?.name ? 'Edit Pot' : 'Add New Pot'))
 const tip = computed(() =>
-  props?.data?.category
-    ? 'As your budgets change, feel free to update your spending limits.'
-    : 'Choose a category to set a spending budget. These categories can help you monitor spending.',
+  props?.data?.name
+    ? 'If your saving targets change, feel free to update your pots.'
+    : 'Create a pot to set savings targets. These can help keep you on track as you save for special purchases.',
 )
 
-const buttonName = computed(() => (props?.data?.category ? 'Save Changes' : 'Add Budget'))
+const buttonName = computed(() => (props?.data?.name ? 'Save Changes' : 'Add Pot'))
 
-const formData = ref<Budget>({
-  category: 'Entertainment',
+const formData = ref<Pot>({
+  id: '',
+  name: '',
+  target: 0,
   theme: '#277C78',
-  maximum: 0,
 })
 
 watch(
   () => props.data,
-  (newData: Budget | undefined) => {
+  (newData: Pot | undefined) => {
     if (newData) {
       formData.value = { ...newData }
     }
@@ -44,7 +43,8 @@ watch(
 )
 
 const schema = yup.object({
-  maximum: yup
+  name: yup.string().max(30).required("Can't be empty"), // 空时才报 required
+  target: yup
     .number()
     .transform((value, originalValue) => {
       return originalValue === '' ? undefined : value
@@ -52,39 +52,24 @@ const schema = yup.object({
     .typeError('Must be number') // 非数字时报错
     .required("Can't be empty"), // 空时才报 required
 })
-const { handleSubmit } = useForm<Budget>({
+const { handleSubmit } = useForm<Pot>({
   validationSchema: schema,
 })
 
-const emit = defineEmits<{ upsert: [data: Budget] }>()
-
+const emit = defineEmits<{ upset: [data: Pot] }>()
 const handleUpsert = handleSubmit(() => {
-  formData.value.maximum = Number(formData.value.maximum)
-  emit('upsert', formData.value)
+  emit('upset', formData.value)
   visible.value = false
 })
 </script>
 <template>
   <BaseDialog v-model="visible" :title="title" :tip="tip">
     <form class="form">
-      <FormItem
-        v-model="formData.category"
-        name="category"
-        label="Budget Category"
-        v-slot="{ field }"
-      >
-        <SelectPicker
-          v-bind="field"
-          :model-value="field.value"
-          :options="CATEGORY_OPTIONS"
-          class="form__select"
-          width="100%"
-        />
+      <FormItem v-model="formData.name" name="name" label="Pot Name" placeholder="e.g. Rainy Days">
       </FormItem>
-      <FormItem v-model="formData.maximum" name="maximum" label="Maximum Spend" v-slot="{ field }">
+      <FormItem v-model="formData.target" name="target" label="Target" v-slot="{ field }">
         <BaseInput v-bind="field" :model-value="field.value" prefix="$" placeholder="e.g.2000" />
       </FormItem>
-
       <FormItem v-model="formData.theme" name="theme" label="Theme" v-slot="{ field }">
         <SelectPicker
           v-bind="field"
@@ -95,6 +80,7 @@ const handleUpsert = handleSubmit(() => {
         />
       </FormItem>
     </form>
+
     <template #footer>
       <button class="button" @click="handleUpsert">{{ buttonName }}</button>
     </template>
