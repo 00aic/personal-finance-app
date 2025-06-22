@@ -1,24 +1,66 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import SearchInput from '@/components/SearchInput'
 import SelectPicker from '@/components/SelectPicker'
+import { SORT_OPTIONS } from '@/constants/sort'
+import type { RecurringBill } from '@/types/RecurringBill'
+import {
+  getRecurringBills,
+  getRecurringBillsByName,
+  getRecurringBillsBySort,
+} from '@/api/modules/recurringBills'
+import { formatNumber } from '@/utils/numberUtils'
+import { useImageUrl } from '@/composables/useImageUrl'
+import type { Sort } from '@/types/transaction'
 
-const handleSearch = (value: string) => {
-  console.log('搜索:', value)
+const recurringBills = ref<RecurringBill[]>([])
+onMounted(async () => {
+  recurringBills.value = (await getRecurringBills()).data
+})
+
+const handleSearch = async (value: string) => {
+  recurringBills.value = (await getRecurringBillsByName(value)).data
 }
 
-const sortValue = ref<string>('All')
+const sortValue = ref<string>('latest')
+const handleSort = async (sort: string | number) => {
+  recurringBills.value = (await getRecurringBillsBySort(sort as Sort)).data
+}
 
-const sortOptions = [
-  {
-    label: 'All',
-    value: 'All',
-  },
-  {
-    label: 'a-z',
-    value: 'a-z',
-  },
-]
+const isWithLastFiveDays = (dateStr: string) => {
+  const date = new Date(dateStr)
+  const now = new Date()
+  const fiveDaysAgo = new Date(now.getDate() - 5)
+  return date >= fiveDaysAgo && date <= now
+}
+
+const billsWithSummary = computed(() => {
+  return recurringBills.value.reduce(
+    (acc, bill) => {
+      acc['totalBills'] = (acc['totalBills'] ?? 0) + Number(bill.amount)
+      if (bill.status === 'paid') {
+        acc['paidBillsNumber'] = (acc['paidBillsNumber'] ?? 0) + 1
+        acc['paidBillsAmount'] = (acc['paidBillsAmount'] ?? 0) + Number(bill.amount)
+      }
+      if (bill.status === 'due') {
+        acc['dueBillsNumber'] = (acc['dueBillsNumber'] ?? 0) + 1
+        acc['dueBillsAmount'] = (acc['dueBillsAmount'] ?? 0) + Number(bill.amount)
+        if (isWithLastFiveDays(bill.date)) {
+          acc['dueBillsLastFiveNumber'] = (acc['dueBillsLastFiveNumber'] ?? 0) + 1
+          acc['dueBillsLastFiveAmount'] = (acc['dueBillsLastFiveAmount'] ?? 0) + Number(bill.amount)
+        }
+      }
+
+      return acc
+    },
+    {} as Record<string, number>,
+  )
+})
+
+// 格式化金额
+const formatAmount = (amount: number) => {
+  return formatNumber(amount, { currency: 'USD' })
+}
 </script>
 <template>
   <div class="bills common-layout-page">
@@ -30,7 +72,7 @@ const sortOptions = [
         </div>
         <div class="total__bills">
           <div class="total__bills-label">Total bills</div>
-          <div class="total__bills-value">$384.98</div>
+          <div class="total__bills-value">{{ formatAmount(billsWithSummary.totalBills ?? 0) }}</div>
         </div>
       </div>
       <div class="summary">
@@ -38,15 +80,27 @@ const sortOptions = [
         <div class="items">
           <div class="item">
             <div class="item__label">Paid Bills</div>
-            <div class="item__value">2($320.00)</div>
+            <div class="item__value">
+              {{
+                `${billsWithSummary.paidBillsNumber ?? 0}(${formatAmount(billsWithSummary.paidBillsAmount ?? 0)})`
+              }}
+            </div>
           </div>
           <div class="item">
             <div class="item__label">Total Upcoming</div>
-            <div class="item__value">2($320.00)</div>
+            <div class="item__value">
+              {{
+                `${billsWithSummary.dueBillsNumber ?? 0}(${formatAmount(billsWithSummary.dueBillsAmount ?? 0)})`
+              }}
+            </div>
           </div>
           <div class="item due">
             <div class="item__label">Due Soon</div>
-            <div class="item__value">2($320.00)</div>
+            <div class="item__value">
+              {{
+                `${billsWithSummary.dueBillsLastFiveNumber ?? 0}(${formatAmount(billsWithSummary.dueBillsLastFiveAmount ?? 0)})`
+              }}
+            </div>
           </div>
         </div>
       </div>
@@ -58,39 +112,35 @@ const sortOptions = [
             img-src="icon-sort-mobile.svg"
             label="Sort by"
             v-model="sortValue"
-            :options="sortOptions"
+            :options="SORT_OPTIONS"
+            @select="handleSort"
           />
         </div>
         <div class="session">
-          <div class="item">
+          <div class="item" v-for="(item, index) in recurringBills" :key="index">
             <div class="title">
               <div class="title__icon">
-                <img src="@/assets/images/avatars/spark-electric-solutions.jpg" alt="" />
+                <img :src="useImageUrl(item.avatar).value" alt="" />
               </div>
-              <div class="title__name">Spark Electric Solutions</div>
+              <div class="title__name">{{ item.name }}</div>
             </div>
             <div class="value">
               <div class="due">
-                <div class="due__date">Monthly-2nd</div>
-                <div><img src="@/assets/images/icon-bill-paid.svg" alt="paid" /></div>
+                <div class="due__date">{{ item.dueDate }}</div>
+                <div class="due__icon">
+                  <img
+                    :src="
+                      item.status === 'paid'
+                        ? useImageUrl('icon-bill-paid.svg').value
+                        : useImageUrl('icon-bill-due.svg').value
+                    "
+                    alt="paid"
+                  />
+                </div>
               </div>
-              <div class="amount">$100.00</div>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="title">
-              <div class="title__icon">
-                <img src="@/assets/images/avatars/spark-electric-solutions.jpg" alt="" />
+              <div class="amount" :class="{ 'amount-due': item.status !== 'paid' }">
+                {{ formatAmount(item.amount) }}
               </div>
-              <div class="title__name">Spark Electric Solutions</div>
-            </div>
-            <div class="value">
-              <div class="due">
-                <div class="due__date">Monthly-2nd</div>
-                <div><img src="@/assets/images/icon-bill-paid.svg" alt="paid" /></div>
-              </div>
-              <div class="amount">$100.00</div>
             </div>
           </div>
         </div>
@@ -250,11 +300,20 @@ const sortOptions = [
                 @include text.text-styles('text-preset-5');
                 color: var(--color-green);
               }
+
+              &__icon {
+                display: flex;
+                align-items: center;
+              }
             }
 
             .amount {
               @include text.text-styles('text-preset-4-bold');
               color: var(--color-grey-900);
+
+              &-due {
+                color: var(--color-red);
+              }
             }
           }
         }

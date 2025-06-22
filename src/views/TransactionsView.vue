@@ -9,6 +9,7 @@ import { formatIntlDate } from '@/utils/dateUtils'
 import { formatNumber } from '@/utils/numberUtils'
 import { useRoute } from 'vue-router'
 import { CATEGORY_OPTIONS_WITH_ALL } from '@/constants/categories'
+import { SORT_OPTIONS } from '@/constants/sort'
 
 const route = useRoute()
 
@@ -21,32 +22,6 @@ const handleSearch = async (value: string) => {
 
 const sortValue = ref<string>('latest')
 
-const sortOptions = [
-  {
-    label: 'Latest',
-    value: 'latest',
-  },
-  {
-    label: 'Oldest',
-    value: 'oldest',
-  },
-  {
-    label: 'A to Z',
-    value: 'az',
-  },
-  {
-    label: 'Z to A',
-    value: 'za',
-  },
-  {
-    label: 'Highest',
-    value: 'highest',
-  },
-  {
-    label: 'Lowest',
-    value: 'lowest',
-  },
-]
 // 排序
 const handleSort = async () => {
   await getTransactions()
@@ -161,7 +136,7 @@ const handleShowEllipsisPage = async () => {
             img-src="icon-sort-mobile.svg"
             label="Sort by"
             v-model="sortValue"
-            :options="sortOptions"
+            :options="SORT_OPTIONS"
             @select="handleSort"
           />
           <!-- <div><img src="@/assets/images/icon-sort-mobile.svg" alt="sort" /></div> -->
