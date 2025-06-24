@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { Doughnut } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -13,30 +13,13 @@ import {
 // 注册Chart.js组件
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-interface BudgetData {
-  entertainment: number
-  bills: number
-  dining: number
-  personal: number
-}
-
-const budgetData = ref<BudgetData>({
-  entertainment: 50.0,
-  bills: 750.0,
-  dining: 75.0,
-  personal: 100.0,
-})
-
 interface Props {
   data: ChartData<'doughnut'>
   limit: number
+  spent: number
 }
 
 const props = defineProps<Props>()
-
-const totalSpent = computed(() => {
-  return Object.values(props.data.datasets[0].data).reduce((sum, amount) => sum + amount, 0)
-})
 
 const chartOptions = computed<ChartOptions<'doughnut'>>(() => ({
   responsive: false,
@@ -57,7 +40,7 @@ const chartOptions = computed<ChartOptions<'doughnut'>>(() => ({
         label: function (context) {
           const label = context.label || ''
           const value = context.parsed
-          const percentage = ((value / totalSpent.value) * 100).toFixed(1)
+          const percentage = ((value / props.spent) * 100).toFixed(1)
           return `${label}: ${value.toFixed(2)} (${percentage}%)`
         },
       },
@@ -80,17 +63,16 @@ const chartOptions = computed<ChartOptions<'doughnut'>>(() => ({
   },
 }))
 
-// 可以添加一些交互方法
-const updateBudget = (category: keyof BudgetData, amount: number) => {
-  budgetData.value[category] = amount
-}
+// // 可以添加一些交互方法
+// const updateBudget = (category: keyof BudgetData, amount: number) => {
+//   budgetData.value[category] = amount
+// }
 
-// 暴露给父组件使用
-defineExpose({
-  updateBudget,
-  budgetData,
-  totalSpent,
-})
+// // 暴露给父组件使用
+// defineExpose({
+//   updateBudget,
+//   budgetData,
+// })
 </script>
 
 <template>
@@ -98,7 +80,7 @@ defineExpose({
     <div class="chart-wrapper">
       <Doughnut :data="data" :options="chartOptions" :width="240" :height="240" />
       <div class="chart-center">
-        <div class="amount">${{ totalSpent }}</div>
+        <div class="amount">${{ spent }}</div>
         <div class="limit">of ${{ limit }} limit</div>
       </div>
     </div>

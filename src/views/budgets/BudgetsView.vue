@@ -16,6 +16,7 @@ import { useRouter } from 'vue-router'
 import DropdownButton from '@/components/DropdownButton'
 import ConfirmationDialog from '@/components/ConfirmationDialog'
 import UpsertBudget from './UpsertBudget.vue'
+import { useBudgetsChart } from '@/composables/useBudgetsChart'
 
 const router = useRouter()
 
@@ -27,19 +28,8 @@ onMounted(async () => {
   await getBudgets()
 })
 
-const chartData = computed(() => ({
-  labels: budgetsWithProgress.value.map((item) => item.category),
-  datasets: [
-    {
-      data: budgetsWithProgress.value.map((item) => item.spent ?? 0),
-      backgroundColor: budgetsWithProgress.value.map((item) => item.theme),
-      hoverBackgroundColor: budgetsWithProgress.value.map((item) => item.theme + 'CC'),
-      borderWidth: 0,
-      cutout: '60%',
-      hoverOffset: budgetsWithProgress.value.length,
-    },
-  ],
-}))
+const { chartData, chartLimit, chartSpent } = useBudgetsChart(budgets)
+
 const budgetsWithProgress = computed(() => {
   return budgets.value.map((item) => {
     const remaining = item.maximum - (item.spent ?? 0)
@@ -50,10 +40,7 @@ const budgetsWithProgress = computed(() => {
     }
   })
 })
-// 图标总花费数
-const chartLimit = computed(() =>
-  budgetsWithProgress.value.reduce((sum, item) => sum + item.maximum, 0),
-)
+
 // 格式化金额
 const formatAmount = (amount: number) => {
   return formatNumber(amount, { currency: 'USD' })
@@ -123,20 +110,20 @@ const handleBudgetUpdate = async (budget: Budget) => {
     <UpsertBudget v-model="showAddDialog" @upsert="handleBudgetAdd" />
 
     <div class="summary">
-      <BudgetsDoughnut :data="chartData" :limit="chartLimit" />
+      <BudgetsDoughnut :data="chartData" :limit="chartLimit" :spent="chartSpent" />
       <div class="spending">
-        <div class="header">Spending Summary</div>
-        <div class="details">
+        <div class="sp-header">Spending Summary</div>
+        <div class="sp-header__details">
           <div
-            class="item"
+            class="sp-item"
             v-for="(item, index) in budgetsWithProgress"
             :key="`budget-${index}`"
             :style="{ '--color-budget-border': item.theme }"
           >
-            <div class="item__label">{{ item.category }}</div>
-            <div class="item__value">
-              <span class="item__value-spent">{{ formatAmount(item.spent ?? 0) }}</span>
-              <span class="item__value-total">of {{ formatAmount(item.maximum) }}</span>
+            <div class="sp-item__label">{{ item.category }}</div>
+            <div class="sp-item__value">
+              <span class="sp-item__value-spent">{{ formatAmount(item.spent ?? 0) }}</span>
+              <span class="sp-item__value-total">of {{ formatAmount(item.maximum) }}</span>
             </div>
           </div>
         </div>
@@ -182,26 +169,26 @@ const handleBudgetUpdate = async (budget: Budget) => {
       </div>
 
       <div class="latest">
-        <div class="header">
-          <div class="header__title">Latest Spending</div>
-          <div class="header__action" @click="handleSeeAll(item.category)">
+        <div class="l-header">
+          <div class="l-header__title">Latest Spending</div>
+          <div class="l-header__action" @click="handleSeeAll(item.category)">
             <div>See All</div>
             <div><img src="@/assets/images/icon-caret-right.svg" alt="more" /></div>
           </div>
         </div>
-        <div class="items">
-          <div class="item" v-for="(trac, index) in item.transactions" :key="`trac${index}`">
-            <div class="item__user">
-              <div class="item__user-avatar">
+        <div class="l-items">
+          <div class="l-item" v-for="(trac, index) in item.transactions" :key="`trac${index}`">
+            <div class="l-item__user">
+              <div class="l-item__user-avatar">
                 <img :src="useImageUrl(trac.avatar).value" alt="avatar" />
               </div>
-              <div class="item__user-name">{{ trac.name }}</div>
+              <div class="l-item__user-name">{{ trac.name }}</div>
             </div>
-            <div class="item__content">
-              <div class="item__content-value">
+            <div class="l-item__content">
+              <div class="l-item__content-value">
                 {{ formatAmount(trac.amount) }}
               </div>
-              <div class="item__content-time">{{ formatIntlDate(trac.date) }}</div>
+              <div class="l-item__content-time">{{ formatIntlDate(trac.date) }}</div>
             </div>
           </div>
         </div>
@@ -248,59 +235,59 @@ const handleBudgetUpdate = async (budget: Budget) => {
       flex-direction: column;
       gap: var(--spacing-24);
 
-      .header {
+      .sp-header {
         @include text.text-styles('text-preset-2');
         color: var(--color-grey-900);
-      }
-      .details {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-16);
-
-        .item {
+        &__details {
           display: flex;
-          justify-content: space-between;
-          align-items: center;
-          position: relative;
-          padding-left: var(--spacing-16);
+          flex-direction: column;
+          gap: var(--spacing-16);
 
-          &::before {
-            content: '';
-            top: 0;
-            left: 0;
-            bottom: var(--spacing-16); // 从底部向上缩进,避免左边框高度把padding-bottom也算上了
-            border-radius: var(--spacing-8);
-            border-left: 4px solid var(--color-budget-border);
-            position: absolute;
-          }
-
-          border-bottom: 1px solid var(--color-grey-100);
-          padding-bottom: var(--spacing-16);
-
-          &:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
+          .sp-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            padding-left: var(--spacing-16);
 
             &::before {
-              bottom: 0;
+              content: '';
+              top: 0;
+              left: 0;
+              bottom: var(--spacing-16); // 从底部向上缩进,避免左边框高度把padding-bottom也算上了
+              border-radius: var(--spacing-8);
+              border-left: 4px solid var(--color-budget-border);
+              position: absolute;
             }
-          }
 
-          &__label {
-            @include text.text-styles('text-preset-4');
-            color: var(--color-grey-500);
-          }
-          &__value {
-            display: flex;
-            gap: var(--spacing-8);
-            align-items: center;
-            &-spent {
-              @include text.text-styles('text-preset-3');
-              color: var(--color-grey-900);
+            border-bottom: 1px solid var(--color-grey-100);
+            padding-bottom: var(--spacing-16);
+
+            &:last-child {
+              border-bottom: none;
+              padding-bottom: 0;
+
+              &::before {
+                bottom: 0;
+              }
             }
-            &-total {
-              @include text.text-styles('text-preset-5');
+
+            &__label {
+              @include text.text-styles('text-preset-4');
               color: var(--color-grey-500);
+            }
+            &__value {
+              display: flex;
+              gap: var(--spacing-8);
+              align-items: center;
+              &-spent {
+                @include text.text-styles('text-preset-3');
+                color: var(--color-grey-900);
+              }
+              &-total {
+                @include text.text-styles('text-preset-5');
+                color: var(--color-grey-500);
+              }
             }
           }
         }
@@ -417,8 +404,9 @@ const handleBudgetUpdate = async (budget: Budget) => {
       background-color: var(--color-beige-100);
       box-shadow: 0 8px 24px 0 var(--color-shadow-1);
 
-      .header {
+      .l-header {
         display: flex;
+        justify-content: space-between;
 
         &__title {
           @include text.text-styles('text-preset-3');
@@ -432,12 +420,12 @@ const handleBudgetUpdate = async (budget: Budget) => {
         }
       }
 
-      .items {
+      .l-items {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-12);
 
-        .item {
+        .l-item {
           display: flex;
           justify-content: space-between;
           align-items: center;

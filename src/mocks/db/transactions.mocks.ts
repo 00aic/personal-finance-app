@@ -405,7 +405,7 @@ const paginate = (pagination: Pagination): Transaction[] => {
   const { page, pageSize, sort, category, search } = pagination
   const start = (page - 1) * pageSize
   const end = start + pageSize
-  getTransactionsBySortAndCategory(sort, category)
+  getTransactionsBySortAndCategory(sort ?? 'latest', category ?? 'all')
   getTransactionsBySearch(search)
   return transactions.value.slice(start, end)
 }

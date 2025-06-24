@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import SearchInput from '@/components/SearchInput'
 import SelectPicker from '@/components/SelectPicker'
 import { SORT_OPTIONS } from '@/constants/sort'
-import type { RecurringBill } from '@/types/RecurringBill'
+import type { RecurringBill } from '@/types/recurringBill'
 import {
   getRecurringBills,
   getRecurringBillsByName,
@@ -12,6 +12,7 @@ import {
 import { formatNumber } from '@/utils/numberUtils'
 import { useImageUrl } from '@/composables/useImageUrl'
 import type { Sort } from '@/types/transaction'
+import { useBillsSummary } from '@/composables/useBillsSummary'
 
 const recurringBills = ref<RecurringBill[]>([])
 onMounted(async () => {
@@ -27,35 +28,7 @@ const handleSort = async (sort: string | number) => {
   recurringBills.value = (await getRecurringBillsBySort(sort as Sort)).data
 }
 
-const isWithLastFiveDays = (dateStr: string) => {
-  const date = new Date(dateStr)
-  const now = new Date()
-  const fiveDaysAgo = new Date(now.getDate() - 5)
-  return date >= fiveDaysAgo && date <= now
-}
-
-const billsWithSummary = computed(() => {
-  return recurringBills.value.reduce(
-    (acc, bill) => {
-      acc['totalBills'] = (acc['totalBills'] ?? 0) + Number(bill.amount)
-      if (bill.status === 'paid') {
-        acc['paidBillsNumber'] = (acc['paidBillsNumber'] ?? 0) + 1
-        acc['paidBillsAmount'] = (acc['paidBillsAmount'] ?? 0) + Number(bill.amount)
-      }
-      if (bill.status === 'due') {
-        acc['dueBillsNumber'] = (acc['dueBillsNumber'] ?? 0) + 1
-        acc['dueBillsAmount'] = (acc['dueBillsAmount'] ?? 0) + Number(bill.amount)
-        if (isWithLastFiveDays(bill.date)) {
-          acc['dueBillsLastFiveNumber'] = (acc['dueBillsLastFiveNumber'] ?? 0) + 1
-          acc['dueBillsLastFiveAmount'] = (acc['dueBillsLastFiveAmount'] ?? 0) + Number(bill.amount)
-        }
-      }
-
-      return acc
-    },
-    {} as Record<string, number>,
-  )
-})
+const billsWithSummary = useBillsSummary(recurringBills)
 
 // 格式化金额
 const formatAmount = (amount: number) => {

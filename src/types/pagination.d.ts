@@ -6,7 +6,7 @@ export interface PaginationResponse<T> {
 export interface Pagination {
   page: number
   pageSize: number
-  sort: Sort
-  category: Category
+  sort?: Sort
+  category?: Category
   search?: string
 }

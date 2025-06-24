@@ -162,11 +162,7 @@ const handleShowEllipsisPage = async () => {
           </div>
           <div class="value">
             <div class="value__amount" :class="{ positive: item.amount >= 0 }">
-              {{
-                item.amount > 0
-                  ? '+' + formatNumber(item.amount, { currency: 'USD' })
-                  : formatNumber(item.amount, { currency: 'USD' })
-              }}
+              {{ item.amount > 0 ? '+' : '' }} {{ formatNumber(item.amount, { currency: 'USD' }) }}
             </div>
             <div class="value__date">{{ formatIntlDate(item.date) }}</div>
           </div>
