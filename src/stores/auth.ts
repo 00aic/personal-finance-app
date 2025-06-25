@@ -1,12 +1,12 @@
-import type { Login } from '@/types/login'
+import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
-  const isLoggedIn = ref(false)
-  const credentialUser = ref<Login>()
+  const isLoggedIn = useLocalStorage('isLoggedIn', false)
+  const credentialUser = ref<string>()
 
-  const login = (credentials: Login) => {
+  const login = (credentials: string) => {
     isLoggedIn.value = true
     credentialUser.value = credentials
   }

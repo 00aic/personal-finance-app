@@ -23,7 +23,7 @@
 ```
 
 ```vue
-<FormItem v-model="formData.clientEmail" name="email" label="Street Address" #default="{ field }">
+<FormItem v-model="formData.clientEmail" name="email" label="Street Address" v-slot="{ field }">
     <input v-bind="field" type="text" id="email" placeholder="e.g.Stephen King" />
 </FormItem>
 ```

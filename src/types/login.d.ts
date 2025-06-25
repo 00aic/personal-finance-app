@@ -1,5 +1,5 @@
-export interface Login {
-  name?: string
-  email: string
-  password: string
+export interface LoginResult {
+  success: boolean
+  user?: string
+  message?: string
 }

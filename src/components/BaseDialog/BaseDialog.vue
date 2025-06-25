@@ -3,9 +3,11 @@ const visible = defineModel({ type: Boolean, default: false })
 interface Props {
   title?: string
   tip?: string
+  showClose?: boolean
 }
 withDefaults(defineProps<Props>(), {
   title: 'Tip',
+  showClose: true,
 })
 
 const emit = defineEmits<{ close: [] }>()
@@ -22,7 +24,7 @@ const handleClose = () => {
         <div class="dialog-container" v-if="visible">
           <div class="dialog__header">
             <div class="dialog__header-title">{{ title }}</div>
-            <div @click="handleClose">
+            <div v-if="showClose" @click="handleClose">
               <img src="@/assets/images/icon-close-modal.svg" alt="close" />
             </div>
           </div>

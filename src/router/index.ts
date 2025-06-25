@@ -1,13 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LayoutView from '../views/LayoutView.vue'
+import { useAuthStore } from '@/stores/auth'
 
 export const layoutViewRoutes = {
   path: '/',
   name: 'layoutView',
   component: LayoutView,
+  redirect: '/overview',
   children: [
     {
-      path: '/overview',
+      path: 'overview',
       name: 'Overview',
       component: () => import('@/views/OverviewView.vue'),
       meta: {
@@ -60,11 +62,39 @@ const router = createRouter({
     layoutViewRoutes,
     {
       path: '/login',
-      name: 'login',
+      name: 'Login',
       component: () => import('@/views/LoginView.vue'),
       meta: { requiresAuth: false },
     },
   ],
+})
+
+// 全局前置守卫
+router.beforeEach(async (to, from, next) => {
+  console.log('from', from)
+  console.log('to', to)
+  const authStore = useAuthStore()
+
+  // 如果是登录页面且已经登录，重定向到首页或返回页面
+  if (to.name === 'Login' && authStore.isLoggedIn) {
+    next({ name: 'Overview' })
+    return
+  }
+
+  // 检查路由权限
+  if (to.meta.requiresAuth) {
+    if (!authStore.isLoggedIn) {
+      // 未登录，跳转到登录页
+      next({
+        name: 'Login',
+      })
+    } else {
+      next()
+    }
+    return
+  }
+
+  next()
 })
 
 export default router

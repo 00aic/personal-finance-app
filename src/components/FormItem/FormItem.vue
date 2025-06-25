@@ -52,7 +52,7 @@ const showError = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 9px;
+  margin-bottom: var(--spacing-4);
 }
 
 .form-label {

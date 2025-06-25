@@ -1,105 +1,139 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { Login } from '@/types/login'
+import { computed, ref } from 'vue'
+import type { User } from '@/types/user'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { login, createAccount } from '@/api/modules/login'
+import * as yup from 'yup'
+import { useForm } from 'vee-validate'
+import FormItem from '@/components/FormItem'
+import MessageBox from '@/components/MessageBox'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-const loginForm = ref<Login>({
+const isLogin = ref<boolean>(true)
+const showMessageBox = ref<boolean>(false)
+
+const form = ref<User>({
   email: '',
   password: '',
 })
 
-const handleLogin = async () => {
-  try {
-    await login(loginForm.value)
-    authStore.login(loginForm.value)
-    router.push({ name: 'Overview' })
-  } catch (error) {
-    console.log(error)
+const title = computed(() => (isLogin.value ? 'Login' : 'Sign Up'))
+const passwordLabel = computed(() => (isLogin.value ? 'Password' : 'Create Password'))
+const buttonName = computed(() => (isLogin.value ? 'Login' : 'Create Account'))
+const footerTip = computed(() =>
+  isLogin.value ? 'Need to create an account?' : 'Already have an account?',
+)
+const footerAction = computed(() => (isLogin.value ? 'Sign Up' : 'Login'))
+
+const requiredMsg = "Can't be empty"
+const schema = computed(() =>
+  yup.object({
+    name: isLogin.value ? yup.string().optional() : yup.string().required(requiredMsg),
+    email: yup.string().email().required(requiredMsg),
+    password: isLogin.value
+      ? yup.string().required(requiredMsg)
+      : yup.string().min(8, 'Passwords must be at least 8 characters').required(requiredMsg),
+  }),
+)
+const { handleSubmit } = useForm<User>({
+  validationSchema: schema,
+})
+
+const handleLoginAndSign = () => {
+  if (isLogin.value) {
+    handleLogin()
+  } else {
+    handleSignUp()
   }
 }
 
-const isLogin = ref<boolean>(true)
+const handleToLoginAndSign = () => {
+  form.value = { name: '', email: '', password: '' }
+  if (isLogin.value) {
+    // 登录页面，创建用户需要跳转到signup
+    handleToSignUp()
+  } else {
+    handleToLogin()
+  }
+}
+const messageBoxMsg = ref<string>('')
+const handleLogin = handleSubmit(async () => {
+  try {
+    const loginResult = await login(form.value)
+    if (loginResult.data.success) {
+      authStore.login(loginResult.data.user ?? '')
+      router.push({ name: 'Overview' })
+    } else {
+      messageBoxMsg.value = loginResult.data.message ?? 'Login Failed'
+      showMessageBox.value = true
+    }
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+const handleSignUp = handleSubmit(async () => {
+  try {
+    await createAccount(form.value)
+    messageBoxMsg.value = 'Create account successfully.'
+    showMessageBox.value = true
+  } catch (error) {
+    console.log(error)
+    messageBoxMsg.value = 'Failed to create account.'
+    showMessageBox.value = true
+  }
+})
 
 const handleToSignUp = () => {
   isLogin.value = false
 }
 
-const signUpForm = ref<Login>({})
-
 const handleToLogin = () => {
   isLogin.value = true
-}
-
-const handleSignUp = async () => {
-  await createAccount(signUpForm.value)
 }
 </script>
 <template>
   <div class="login">
     <div class="header"><img src="@/assets/images/logo-large.svg" alt="logo" /></div>
     <div class="container-wrapper">
-      <div class="container" v-if="isLogin">
-        <div class="container__title">Login</div>
+      <div class="container">
+        <div class="container__title">{{ title }}</div>
         <form class="container__form">
-          <label for="email">
-            Email:
-            <input type="text" v-model="loginForm.email" name="email" id="email" />
-          </label>
-          <label for="password">
-            Password:
+          <FormItem v-if="!isLogin" v-model="form.name" name="name" label="Name"></FormItem>
+          <FormItem v-model="form.email" name="email" label="Email" v-slot="{ field }">
+            <input type="email" v-bind="field" name="email" id="email" />
+          </FormItem>
+          <FormItem
+            v-model="form.password"
+            name="password"
+            :label="passwordLabel"
+            v-slot="{ field }"
+          >
             <input
               type="password"
-              v-model="loginForm.password"
-              name="password"
-              id="password"
-              @keyup.enter="handleLogin"
-            />
-          </label>
-        </form>
-        <button class="container__button" type="submit" @click="handleLogin">Login</button>
-        <div class="container__footer">
-          <span class="container__footer-tip">Need to create an account?</span>
-          <span class="container__footer-sign" @click="handleToSignUp">Sign Up</span>
-        </div>
-      </div>
-
-      <div class="container" v-if="!isLogin">
-        <div class="container__title">Sign Up</div>
-        <form class="container__form">
-          <label for="name">
-            Name:
-            <input type="text" v-model="signUpForm.name" name="name" id="name" />
-          </label>
-          <label for="email">
-            Email:
-            <input type="email" v-model="signUpForm.email" name="email" id="email" />
-          </label>
-          <label for="password">
-            Create Password:
-            <input
-              type="password"
-              v-model="signUpForm.password"
+              v-bind="field"
               name="password"
               id="password"
               @keyup.enter="handleSignUp"
             />
-            <div class="password-tip">Passwords must be at least 8 characters</div>
-          </label>
+            <div v-if="!isLogin" class="password-tip">Passwords must be at least 8 characters</div>
+          </FormItem>
         </form>
-        <button class="container__button" type="submit" @click="handleSignUp">
-          Create Account
+        <button class="container__button" type="submit" @click="handleLoginAndSign">
+          {{ buttonName }}
         </button>
         <div class="container__footer">
-          <span class="container__footer-tip">Already have an account?</span>
-          <span class="container__footer-sign" @click="handleToLogin">Login</span>
+          <span class="container__footer-tip">{{ footerTip }}</span>
+          <span class="container__footer-sign" @click="handleToLoginAndSign">{{
+            footerAction
+          }}</span>
         </div>
       </div>
     </div>
+    <MessageBox v-model="showMessageBox" :message="messageBoxMsg" />
   </div>
 </template>
 <style lang="scss" scoped>
@@ -144,29 +178,15 @@ const handleSignUp = async () => {
       &__form {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        // align-items: center;
         gap: var(--spacing-16);
         width: 100%;
 
-        label {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          gap: var(--spacing-4);
-          @include text.text-styles('text-preset-5-bold');
+        .password-tip {
+          justify-self: end;
+          @include text.text-styles('text-preset-5');
           color: var(--color-grey-500);
-
-          input {
-            height: 45px;
-            padding: var(--spacing-12) var(--spacing-20);
-            border: 1px solid var(--color-beige-500);
-            border-radius: var(--spacing-8);
-          }
-
-          .password-tip {
-            align-self: end;
-            @include text.text-styles('text-preset-5');
-          }
+          margin-top: var(--spacing-4);
         }
       }
 

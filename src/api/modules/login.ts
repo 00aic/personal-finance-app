@@ -1,10 +1,11 @@
 import http from '@/api/http'
-import type { Login } from '@/types/login'
+import type { LoginResult } from '@/types/login'
+import type { User } from '@/types/user'
 
-export const login = (params: Login) => {
-  return http.post('/login', params)
+export const login = (params: User) => {
+  return http.post<LoginResult>('/login', params)
 }
 
-export const createAccount = (params: Login) => {
+export const createAccount = (params: User) => {
   return http.post('/login/account', params)
 }
