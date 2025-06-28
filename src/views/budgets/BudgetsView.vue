@@ -5,7 +5,7 @@ import {
   getBudgetsWithTransactions,
   updateBudget,
 } from '@/api/modules/budgets'
-import BudgetsDoughnut from '@/components/BudgetsDoughnut'
+import BudgetsDoughnut from '@/components/budgets-doughnut'
 import type { Budget } from '@/types/budget'
 import { computed, onMounted, ref } from 'vue'
 import { formatNumber } from '@/utils/numberUtils'
@@ -13,8 +13,8 @@ import { formatIntlDate } from '@/utils/dateUtils'
 import { useImageUrl } from '@/composables/useImageUrl'
 import type { Category } from '@/types/transaction'
 import { useRouter } from 'vue-router'
-import DropdownButton from '@/components/DropdownButton'
-import ConfirmationDialog from '@/components/ConfirmationDialog'
+import DropdownButton from '@/components/dropdown-button'
+import ConfirmationDialog from '@/components/confirmation-dialog'
 import UpsertBudget from './UpsertBudget.vue'
 import { useBudgetsChart } from '@/composables/useBudgetsChart'
 
@@ -79,7 +79,11 @@ const actionOptions = [
 const showDeleteDialog = ref<boolean>(false)
 // 是否显示编辑框
 const showEditDialog = ref<boolean>(false)
-const currentItem = ref<Budget>({})
+const currentItem = ref<Budget>({
+  category: 'all',
+  maximum: 0,
+  theme: '',
+})
 const handleActions = (selected: string, item: Budget) => {
   currentItem.value = item
   // 删除操作
@@ -109,86 +113,90 @@ const handleBudgetUpdate = async (budget: Budget) => {
 
     <UpsertBudget v-model="showAddDialog" @upsert="handleBudgetAdd" />
 
-    <div class="summary">
-      <BudgetsDoughnut :data="chartData" :limit="chartLimit" :spent="chartSpent" />
-      <div class="spending">
-        <div class="sp-header">Spending Summary</div>
-        <div class="sp-header__details">
-          <div
-            class="sp-item"
-            v-for="(item, index) in budgetsWithProgress"
-            :key="`budget-${index}`"
-            :style="{ '--color-budget-border': item.theme }"
-          >
-            <div class="sp-item__label">{{ item.category }}</div>
-            <div class="sp-item__value">
-              <span class="sp-item__value-spent">{{ formatAmount(item.spent ?? 0) }}</span>
-              <span class="sp-item__value-total">of {{ formatAmount(item.maximum) }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="details"
-      v-for="(item, index) in budgetsWithProgress"
-      :key="index"
-      :style="{ '--color-budget-progress': item.theme }"
-    >
-      <div class="header">
-        <div class="header__title">
-          <div class="header__title-circle"></div>
-          <div class="header__title-name">{{ item.category }}</div>
-        </div>
-        <DropdownButton
-          :options="actionOptions"
-          @select="(selected) => handleActions(selected, item)"
-        />
-      </div>
-
-      <div class="amount">
-        <div class="maximum">Maximum of ${{ item.maximum }}</div>
-        <div class="progress">
-          <div class="progress__fill" :style="{ width: `${item.progressPercentage}%` }"></div>
-        </div>
-        <div class="detail">
-          <div class="detail__spent">
-            <div class="detail__spent-label">Spent</div>
-            <div class="detail__spent-value">
-              {{ formatAmount(item.spent ?? 0) }}
-            </div>
-          </div>
-          <div class="detail__remaining">
-            <div class="detail__remaining-label">Remaining</div>
-            <div class="detail__remaining-value">
-              {{ formatAmount(item.remaining) }}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="latest">
-        <div class="l-header">
-          <div class="l-header__title">Latest Spending</div>
-          <div class="l-header__action" @click="handleSeeAll(item.category)">
-            <div>See All</div>
-            <div><img src="@/assets/images/icon-caret-right.svg" alt="more" /></div>
-          </div>
-        </div>
-        <div class="l-items">
-          <div class="l-item" v-for="(trac, index) in item.transactions" :key="`trac${index}`">
-            <div class="l-item__user">
-              <div class="l-item__user-avatar">
-                <img :src="useImageUrl(trac.avatar).value" alt="avatar" />
+    <div class="content">
+      <div class="summary">
+        <BudgetsDoughnut :data="chartData" :limit="chartLimit" :spent="chartSpent" />
+        <div class="spending">
+          <div class="sp-header">Spending Summary</div>
+          <div class="sp-header__details">
+            <div
+              class="sp-item"
+              v-for="(item, index) in budgetsWithProgress"
+              :key="`budget-${index}`"
+              :style="{ '--color-budget-border': item.theme }"
+            >
+              <div class="sp-item__label">{{ item.category }}</div>
+              <div class="sp-item__value">
+                <span class="sp-item__value-spent">{{ formatAmount(item.spent ?? 0) }}</span>
+                <span class="sp-item__value-total">of {{ formatAmount(item.maximum) }}</span>
               </div>
-              <div class="l-item__user-name">{{ trac.name }}</div>
             </div>
-            <div class="l-item__content">
-              <div class="l-item__content-value">
-                {{ formatAmount(trac.amount) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div
+          class="details"
+          v-for="(item, index) in budgetsWithProgress"
+          :key="index"
+          :style="{ '--color-budget-progress': item.theme }"
+        >
+          <div class="header">
+            <div class="header__title">
+              <div class="header__title-circle"></div>
+              <div class="header__title-name">{{ item.category }}</div>
+            </div>
+            <DropdownButton
+              :options="actionOptions"
+              @select="(selected) => handleActions(selected, item)"
+            />
+          </div>
+
+          <div class="amount">
+            <div class="maximum">Maximum of ${{ item.maximum }}</div>
+            <div class="progress">
+              <div class="progress__fill" :style="{ width: `${item.progressPercentage}%` }"></div>
+            </div>
+            <div class="detail">
+              <div class="detail__spent">
+                <div class="detail__spent-label">Spent</div>
+                <div class="detail__spent-value">
+                  {{ formatAmount(item.spent ?? 0) }}
+                </div>
               </div>
-              <div class="l-item__content-time">{{ formatIntlDate(trac.date) }}</div>
+              <div class="detail__remaining">
+                <div class="detail__remaining-label">Remaining</div>
+                <div class="detail__remaining-value">
+                  {{ formatAmount(item.remaining) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="latest">
+            <div class="l-header">
+              <div class="l-header__title">Latest Spending</div>
+              <div class="l-header__action" @click="handleSeeAll(item.category)">
+                <div>See All</div>
+                <div><img src="@/assets/images/icon-caret-right.svg" alt="more" /></div>
+              </div>
+            </div>
+            <div class="l-items">
+              <div class="l-item" v-for="(trac, index) in item.transactions" :key="`trac${index}`">
+                <div class="l-item__user">
+                  <div class="l-item__user-avatar">
+                    <img :src="useImageUrl(trac.avatar).value" alt="avatar" />
+                  </div>
+                  <div class="l-item__user-name">{{ trac.name }}</div>
+                </div>
+                <div class="l-item__content">
+                  <div class="l-item__content-value">
+                    {{ formatAmount(trac.amount) }}
+                  </div>
+                  <div class="l-item__content-time">{{ formatIntlDate(trac.date) }}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -220,73 +228,267 @@ const handleBudgetUpdate = async (budget: Budget) => {
       color: var(--color-white);
     }
   }
+  .content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-24);
 
-  .summary {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-32);
-    padding: var(--spacing-20) var(--spacing-24);
-    border-radius: var(--spacing-12);
-    background-color: var(--color-white);
-    box-shadow: 0 8px 24px 0 var(--color-shadow-1);
+    .summary {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-32);
+      padding: var(--spacing-20) var(--spacing-24);
+      border-radius: var(--spacing-12);
+      background-color: var(--color-white);
+      box-shadow: 0 8px 24px 0 var(--color-shadow-1);
 
-    .spending {
+      .spending {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-24);
+
+        .sp-header {
+          @include text.text-styles('text-preset-2');
+          color: var(--color-grey-900);
+          &__details {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-16);
+
+            .sp-item {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              position: relative;
+              padding-left: var(--spacing-16);
+
+              &::before {
+                content: '';
+                top: 0;
+                left: 0;
+                bottom: var(--spacing-16); // 从底部向上缩进,避免左边框高度把padding-bottom也算上了
+                border-radius: var(--spacing-8);
+                border-left: 4px solid var(--color-budget-border);
+                position: absolute;
+              }
+
+              border-bottom: 1px solid var(--color-grey-100);
+              padding-bottom: var(--spacing-16);
+
+              &:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+
+                &::before {
+                  bottom: 0;
+                }
+              }
+
+              &__label {
+                @include text.text-styles('text-preset-4');
+                color: var(--color-grey-500);
+              }
+              &__value {
+                display: flex;
+                gap: var(--spacing-8);
+                align-items: center;
+                &-spent {
+                  @include text.text-styles('text-preset-3');
+                  color: var(--color-grey-900);
+                }
+                &-total {
+                  @include text.text-styles('text-preset-5');
+                  color: var(--color-grey-500);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    .body {
       display: flex;
       flex-direction: column;
       gap: var(--spacing-24);
 
-      .sp-header {
-        @include text.text-styles('text-preset-2');
-        color: var(--color-grey-900);
-        &__details {
+      .details {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-20);
+        padding: var(--spacing-24) var(--spacing-20);
+        border-radius: var(--spacing-12);
+        background-color: var(--color-white);
+        box-shadow: 0 8px 24px 0 var(--color-shadow-1);
+
+        .header {
+          display: flex;
+          justify-content: space-between;
+
+          &__title {
+            display: flex;
+            gap: var(--spacing-16);
+            align-items: center;
+
+            &-circle {
+              width: 16px;
+              height: 16px;
+              border-radius: 50%;
+              background-color: var(--color-budget-progress);
+            }
+            &-name {
+              @include text.text-styles('text-preset-2');
+              color: var(--color-grey-900);
+            }
+          }
+        }
+
+        .amount {
           display: flex;
           flex-direction: column;
           gap: var(--spacing-16);
 
-          .sp-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            padding-left: var(--spacing-16);
+          .maximum {
+            @include text.text-styles('text-preset-4');
+            color: var(--color-grey-500);
+          }
 
-            &::before {
-              content: '';
-              top: 0;
-              left: 0;
-              bottom: var(--spacing-16); // 从底部向上缩进,避免左边框高度把padding-bottom也算上了
-              border-radius: var(--spacing-8);
-              border-left: 4px solid var(--color-budget-border);
-              position: absolute;
+          .progress {
+            height: 32px;
+            padding: var(--spacing-4);
+            border-radius: var(--spacing-4);
+            background-color: var(--color-beige-100);
+
+            &__fill {
+              height: 100%;
+              border-radius: var(--spacing-4);
+              background-color: var(--color-budget-progress);
             }
+          }
 
-            border-bottom: 1px solid var(--color-grey-100);
-            padding-bottom: var(--spacing-16);
+          .detail {
+            display: flex;
 
-            &:last-child {
-              border-bottom: none;
-              padding-bottom: 0;
+            &__spent,
+            &__remaining {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              gap: var(--spacing-4);
+              padding-left: var(--spacing-16);
+              position: relative;
 
               &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
                 bottom: 0;
+                border-radius: var(--spacing-8);
+                width: 4px;
+              }
+
+              &-label {
+                @include text.text-styles('text-preset-5');
+                color: var(--color-grey-500);
+              }
+
+              &-value {
+                @include text.text-styles('text-preset-4-bold');
+                color: var(--color-grey-900);
               }
             }
 
-            &__label {
+            &__spent {
+              &::before {
+                background-color: var(--color-budget-progress);
+              }
+            }
+            &__remaining {
+              &::before {
+                background-color: var(--color-beige-100);
+              }
+            }
+          }
+        }
+
+        .latest {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-20);
+          padding: var(--spacing-16);
+          border-radius: var(--spacing-12);
+          background-color: var(--color-beige-100);
+          box-shadow: 0 8px 24px 0 var(--color-shadow-1);
+
+          .l-header {
+            display: flex;
+            justify-content: space-between;
+
+            &__title {
+              @include text.text-styles('text-preset-3');
+              color: var(--color-grey-900);
+            }
+            &__action {
               @include text.text-styles('text-preset-4');
               color: var(--color-grey-500);
-            }
-            &__value {
               display: flex;
-              gap: var(--spacing-8);
+              gap: var(--spacing-12);
+            }
+          }
+
+          .l-items {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-12);
+
+            .l-item {
+              display: flex;
+              justify-content: space-between;
               align-items: center;
-              &-spent {
-                @include text.text-styles('text-preset-3');
-                color: var(--color-grey-900);
+
+              border-bottom: 1px solid color-mix(in srgb, var(--color-grey-500) 15%, transparent);
+              padding-bottom: var(--spacing-12);
+
+              &:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
               }
-              &-total {
-                @include text.text-styles('text-preset-5');
-                color: var(--color-grey-500);
+
+              &__user {
+                display: flex;
+                gap: var(--spacing-16);
+                align-items: center;
+                &-avatar {
+                  width: 32px;
+                  height: 32px;
+
+                  img {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+                  }
+                }
+
+                &-name {
+                  @include text.text-styles('text-preset-5-bold');
+                  color: var(--color-grey-900);
+                }
+              }
+
+              &__content {
+                display: flex;
+                flex-direction: column;
+                gap: var(--spacing-4);
+                align-items: end;
+
+                &-value {
+                  @include text.text-styles('text-preset-5-bold');
+                  color: var(--color-grey-900);
+                }
+                &-time {
+                  @include text.text-styles('text-preset-5');
+                  color: var(--color-grey-500);
+                }
               }
             }
           }
@@ -294,187 +496,14 @@ const handleBudgetUpdate = async (budget: Budget) => {
       }
     }
   }
+}
 
-  .details {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-20);
-    padding: var(--spacing-24) var(--spacing-20);
-    border-radius: var(--spacing-12);
-    background-color: var(--color-white);
-    box-shadow: 0 8px 24px 0 var(--color-shadow-1);
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-
-      &__title {
-        display: flex;
-        gap: var(--spacing-16);
-        align-items: center;
-
-        &-circle {
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background-color: var(--color-budget-progress);
-        }
-        &-name {
-          @include text.text-styles('text-preset-2');
-          color: var(--color-grey-900);
-        }
-      }
-    }
-
-    .amount {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-16);
-
-      .maximum {
-        @include text.text-styles('text-preset-4');
-        color: var(--color-grey-500);
-      }
-
-      .progress {
-        height: 32px;
-        padding: var(--spacing-4);
-        border-radius: var(--spacing-4);
-        background-color: var(--color-beige-100);
-
-        &__fill {
-          height: 100%;
-          border-radius: var(--spacing-4);
-          background-color: var(--color-budget-progress);
-        }
-      }
-
-      .detail {
-        display: flex;
-
-        &__spent,
-        &__remaining {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: var(--spacing-4);
-          padding-left: var(--spacing-16);
-          position: relative;
-
-          &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            border-radius: var(--spacing-8);
-            width: 4px;
-          }
-
-          &-label {
-            @include text.text-styles('text-preset-5');
-            color: var(--color-grey-500);
-          }
-
-          &-value {
-            @include text.text-styles('text-preset-4-bold');
-            color: var(--color-grey-900);
-          }
-        }
-
-        &__spent {
-          &::before {
-            background-color: var(--color-budget-progress);
-          }
-        }
-        &__remaining {
-          &::before {
-            background-color: var(--color-beige-100);
-          }
-        }
-      }
-    }
-
-    .latest {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-20);
-      padding: var(--spacing-16);
-      border-radius: var(--spacing-12);
-      background-color: var(--color-beige-100);
-      box-shadow: 0 8px 24px 0 var(--color-shadow-1);
-
-      .l-header {
-        display: flex;
-        justify-content: space-between;
-
-        &__title {
-          @include text.text-styles('text-preset-3');
-          color: var(--color-grey-900);
-        }
-        &__action {
-          @include text.text-styles('text-preset-4');
-          color: var(--color-grey-500);
-          display: flex;
-          gap: var(--spacing-12);
-        }
-      }
-
-      .l-items {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-12);
-
-        .l-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-
-          border-bottom: 1px solid color-mix(in srgb, var(--color-grey-500) 15%, transparent);
-          padding-bottom: var(--spacing-12);
-
-          &:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-          }
-
-          &__user {
-            display: flex;
-            gap: var(--spacing-16);
-            align-items: center;
-            &-avatar {
-              width: 32px;
-              height: 32px;
-
-              img {
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-              }
-            }
-
-            &-name {
-              @include text.text-styles('text-preset-5-bold');
-              color: var(--color-grey-900);
-            }
-          }
-
-          &__content {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-4);
-            align-items: end;
-
-            &-value {
-              @include text.text-styles('text-preset-5-bold');
-              color: var(--color-grey-900);
-            }
-            &-time {
-              @include text.text-styles('text-preset-5');
-              color: var(--color-grey-500);
-            }
-          }
-        }
+@media (min-width: 1025px) {
+  .budgets {
+    .content {
+      grid-template-columns: minmax(400px, auto) 1fr;
+      .summary {
+        align-self: start;
       }
     }
   }

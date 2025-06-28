@@ -17,6 +17,7 @@ watch(route, (newRoute) => {
 <template>
   <div class="layout">
     <nav class="nav">
+      <div class="logo"><img src="@/assets/images/logo-large.svg" alt="logo" /></div>
       <div
         v-for="route in layoutViewRoutes.children"
         :key="route.name"
@@ -39,6 +40,10 @@ watch(route, (newRoute) => {
           >
             <path :d="route.meta.icon" />
           </svg>
+
+          <div class="menu__icon-name">
+            {{ route.name }}
+          </div>
         </router-link>
       </div>
     </nav>
@@ -48,18 +53,20 @@ watch(route, (newRoute) => {
   </div>
 </template>
 <style lang="scss" scoped>
-$nav-height: 52px;
 .layout {
+  --nav-height: 52px;
+
   display: flex;
   gap: var(--spacing-40);
   min-height: 100vh;
   flex-direction: column;
   width: 100vw;
+  background-color: var(--color-beige-100);
 
   .nav {
     display: flex;
     background-color: var(--color-grey-900);
-    height: $nav-height;
+    height: var(--nav-height);
     position: fixed;
     bottom: 0;
     left: 0;
@@ -68,12 +75,18 @@ $nav-height: 52px;
     border-top-left-radius: var(--spacing-8);
     border-top-right-radius: var(--spacing-8);
     z-index: 900;
+    justify-content: center;
+
+    .logo {
+      display: none;
+    }
 
     .menu {
-      height: 44px;
-      width: 68.6px;
+      height: calc(var(--nav-height) - var(--spacing-8));
+      flex: 1;
       display: flex;
       justify-content: center;
+      align-items: center;
 
       &--active {
         background-color: var(--color-beige-100);
@@ -83,6 +96,7 @@ $nav-height: 52px;
       }
 
       &__icon {
+        text-decoration: none;
         display: flex;
         justify-content: center;
         width: 100%;
@@ -100,14 +114,93 @@ $nav-height: 52px;
         &--active {
           color: var(--color-green);
         }
+
+        &-name {
+          display: none;
+        }
       }
     }
   }
 
   .main {
-    background-color: var(--color-beige-100);
+    // background-color: var(--color-beige-100);
     min-height: 100vh;
-    padding-bottom: $nav-height;
+    padding: var(--spacing-24) var(--spacing-16) var(--nav-height) var(--spacing-16);
+  }
+}
+
+@media (min-width: 577px) {
+  .layout {
+    --nav-height: 86px;
+
+    .nav {
+      .menu {
+        height: 78px;
+        &__icon {
+          flex-direction: column;
+          gap: var(--spacing-4);
+          &-name {
+            display: block;
+          }
+        }
+      }
+    }
+    .main {
+      padding: var(--spacing-32) 40px var(--nav-height) 40px;
+    }
+  }
+}
+
+@media (min-width: 1025px) {
+  .layout {
+    flex-direction: row;
+
+    .nav {
+      width: 300px;
+      height: 100%;
+      position: static;
+      flex-direction: column;
+      border-radius: unset;
+      border-top-right-radius: var(--spacing-8);
+      border-bottom-right-radius: var(--spacing-8);
+      padding: unset;
+      padding-right: var(--spacing-24);
+      justify-content: start;
+
+      .logo {
+        display: block;
+        padding: var(--spacing-32);
+        gap: var(--spacing-24);
+      }
+
+      .menu {
+        width: 100%;
+        height: auto;
+        flex: none;
+        padding: var(--spacing-16) var(--spacing-32);
+        justify-content: start;
+        &--active {
+          border-radius: unset;
+          border-bottom: unset;
+          border-top-right-radius: var(--spacing-8);
+          border-bottom-right-radius: var(--spacing-8);
+          border-left: var(--spacing-4) solid var(--color-green);
+        }
+        &__icon {
+          width: auto;
+          flex-direction: row;
+          gap: var(--spacing-16);
+
+          &-name {
+            display: block;
+          }
+        }
+      }
+    }
+    .main {
+      flex: 1;
+      padding: var(--spacing-32) 0;
+    }
   }
 }
 </style>

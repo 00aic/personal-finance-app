@@ -6,8 +6,8 @@ import { useAuthStore } from '@/stores/auth'
 import { login, createAccount } from '@/api/modules/login'
 import * as yup from 'yup'
 import { useForm } from 'vee-validate'
-import FormItem from '@/components/FormItem'
-import MessageBox from '@/components/MessageBox'
+import FormItem from '@/components/form-item'
+import MessageBox from '@/components/message-box'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -97,7 +97,26 @@ const handleToLogin = () => {
 </script>
 <template>
   <div class="login">
-    <div class="header"><img src="@/assets/images/logo-large.svg" alt="logo" /></div>
+    <div class="header">
+      <picture>
+        <div class="header__top">
+          <img src="@/assets/images/logo-large.svg" alt="logo" />
+        </div>
+        <source
+          srcset="@/assets/images/illustration-authentication.svg"
+          media="(min-width: 1025px)"
+        />
+        <source srcset="@/assets/images/logo-large.svg" media="(max-width: 768px)" />
+        <img src="@/assets/images/logo-large.svg" alt="logo" class="header__img" />
+        <div class="header__bottom">
+          <div class="header__bottom-title">Keep track of your money and save for your future</div>
+          <div class="header-_bottom-desc">
+            Personal finance app puts you in control of your spending. Track transactions, set
+            budgets, and add to savings pots easily.
+          </div>
+        </div>
+      </picture>
+    </div>
     <div class="container-wrapper">
       <div class="container">
         <div class="container__title">{{ title }}</div>
@@ -117,7 +136,7 @@ const handleToLogin = () => {
               v-bind="field"
               name="password"
               id="password"
-              @keyup.enter="handleSignUp"
+              @keyup.enter="handleLoginAndSign"
             />
             <div v-if="!isLogin" class="password-tip">Passwords must be at least 8 characters</div>
           </FormItem>
@@ -150,6 +169,17 @@ const handleToLogin = () => {
     background-color: var(--color-grey-900);
     display: flex;
     justify-content: center;
+    align-items: center;
+
+    picture {
+      display: flex;
+      align-items: center;
+    }
+
+    &__top,
+    &__bottom {
+      display: none;
+    }
   }
 
   .container-wrapper {
@@ -215,6 +245,75 @@ const handleToLogin = () => {
           color: var(--color-grey-900);
           text-decoration: underline;
         }
+      }
+    }
+  }
+}
+@media (min-width: 577px) {
+  .login {
+    .container-wrapper {
+      .container {
+        width: 560px;
+      }
+    }
+  }
+}
+
+@media (min-width: 1025px) {
+  .login {
+    flex-direction: row;
+    width: 100vw;
+
+    .header {
+      width: 600px;
+      height: 100vh;
+      background: none;
+      padding: var(--spacing-20);
+      justify-content: unset;
+
+      picture {
+        width: 100%;
+        height: 100%;
+        display: block;
+        position: relative;
+      }
+      &__img {
+        width: 100%;
+        height: 100%;
+        border-radius: var(--spacing-12);
+        border: 1px solid #dbe5e6;
+        object-fit: cover;
+        display: block;
+      }
+
+      &__top {
+        display: block;
+        position: absolute;
+        top: 40px;
+        left: 40px;
+      }
+
+      &__bottom {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        padding: 40px;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        color: var(--color-white);
+        &-title {
+          @include text.text-styles('text-preset-1');
+        }
+        &-desc {
+          @include text.text-styles('text-preset-4');
+        }
+      }
+    }
+    .container-wrapper {
+      justify-content: center;
+      .container {
+        max-width: 560px;
       }
     }
   }

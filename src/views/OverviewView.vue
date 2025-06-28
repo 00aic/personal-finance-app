@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import BudgetsDoughnut from '@/components/BudgetsDoughnut'
+import BudgetsDoughnut from '@/components/budgets-doughnut'
 import type { Balance } from '@/types/balance'
 import { getBalance } from '@/api/modules/balance'
 import { formatNumber } from '@/utils/numberUtils'
@@ -92,110 +92,115 @@ const handleRecurringBillsDetails = () => {
         <div class="total__expenses-value">{{ formatAmount(balance?.expenses ?? 0) }}</div>
       </div>
     </div>
-
-    <div class="pots">
-      <div class="session-header">
-        <div class="session-header__title">Pots</div>
-        <div class="session-header__action" @click="handlePotsDetails">
-          <div>See Details</div>
-          <div><img src="@/assets/images/icon-caret-right.svg" alt="caret-right" /></div>
-        </div>
-      </div>
-      <div class="total">
-        <div class="total__icon"><img src="@/assets/images/icon-pot.svg" alt="pot" /></div>
-        <div class="total__content">
-          <div class="total__content-label">Total Saved</div>
-          <div class="total__content-value">
-            {{ formatAmount(potsWithTotalSaved.totalSaved ?? 0) }}
+    <div class="body">
+      <div class="pots">
+        <div class="session-header">
+          <div class="session-header__title">Pots</div>
+          <div class="session-header__action" @click="handlePotsDetails">
+            <div>See Details</div>
+            <div><img src="@/assets/images/icon-caret-right.svg" alt="caret-right" /></div>
           </div>
         </div>
-      </div>
-      <div class="grid-details">
-        <div
-          class="grid-details__item"
-          v-for="(item, index) in potsWithTotalSaved.data"
-          :key="`pot-${index}`"
-          :style="{ '--color-budget-border': item.theme }"
-        >
-          <div class="grid-details__item-label">{{ item.name }}</div>
-          <div class="grid-details__item-value">{{ formatAmount(item.total ?? 0) }}</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="transactions">
-      <div class="session-header">
-        <div class="session-header__title">Tranctions</div>
-        <div class="session-header__action" @click="handleTransactionsAll">
-          <div>View All</div>
-          <div><img src="@/assets/images/icon-caret-right.svg" alt="caret-right" /></div>
-        </div>
-      </div>
-      <div class="details">
-        <div class="item" v-for="(item, index) in transactions" :key="`transaction-${index}`">
-          <div class="item__user">
-            <div class="item__user-avatar">
-              <img :src="useImageUrl(item.avatar).value" alt="avatars" />
+        <div class="pots-body">
+          <div class="total">
+            <div class="total__icon"><img src="@/assets/images/icon-pot.svg" alt="pot" /></div>
+            <div class="total__content">
+              <div class="total__content-label">Total Saved</div>
+              <div class="total__content-value">
+                {{ formatAmount(potsWithTotalSaved.totalSaved ?? 0) }}
+              </div>
             </div>
-            <div class="item__user-name">{{ item.name }}</div>
           </div>
-          <div class="item__content">
-            <div class="item__content-value" :class="{ positive: item.amount >= 0 }">
-              {{ item.amount > 0 ? '+' : '' }}{{ formatAmount(item.amount) }}
+          <div class="grid-details">
+            <div
+              class="grid-details__item"
+              v-for="(item, index) in potsWithTotalSaved.data"
+              :key="`pot-${index}`"
+              :style="{ '--color-budget-border': item.theme }"
+            >
+              <div class="grid-details__item-label">{{ item.name }}</div>
+              <div class="grid-details__item-value">{{ formatAmount(item.total ?? 0) }}</div>
             </div>
-            <div class="item__content-time">{{ formatIntlDate(item.date) }}</div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="budgets">
-      <div class="session-header">
-        <div class="session-header__title">Budgets</div>
-        <div class="session-header__action" @click="handleBudgetsDetails">
-          <div>See Details</div>
-          <div><img src="@/assets/images/icon-caret-right.svg" alt="caret-right" /></div>
+      <div class="transactions">
+        <div class="session-header">
+          <div class="session-header__title">Tranctions</div>
+          <div class="session-header__action" @click="handleTransactionsAll">
+            <div>View All</div>
+            <div><img src="@/assets/images/icon-caret-right.svg" alt="caret-right" /></div>
+          </div>
+        </div>
+        <div class="details">
+          <div class="item" v-for="(item, index) in transactions" :key="`transaction-${index}`">
+            <div class="item__user">
+              <div class="item__user-avatar">
+                <img :src="useImageUrl(item.avatar).value" alt="avatars" />
+              </div>
+              <div class="item__user-name">{{ item.name }}</div>
+            </div>
+            <div class="item__content">
+              <div class="item__content-value" :class="{ positive: item.amount >= 0 }">
+                {{ item.amount > 0 ? '+' : '' }}{{ formatAmount(item.amount) }}
+              </div>
+              <div class="item__content-time">{{ formatIntlDate(item.date) }}</div>
+            </div>
+          </div>
         </div>
       </div>
-      <BudgetsDoughnut :data="chartData" :limit="chartLimit" :spent="chartSpent" />
-      <div class="grid-details">
-        <div
-          class="grid-details__item"
-          v-for="(item, index) in budgetsToShow"
-          :key="`budget-${index}`"
-          :style="{ '--color-budget-border': item.theme }"
-        >
-          <div class="grid-details__item-label">{{ item.category }}</div>
-          <div class="grid-details__item-value">{{ formatAmount(item.spent ?? 0) }}</div>
-        </div>
-      </div>
-    </div>
 
-    <div class="recurring-bills">
-      <div class="session-header">
-        <div class="session-header__title">Recurring Bills</div>
-        <div class="session-header__action" @click="handleRecurringBillsDetails">
-          <div>See Details</div>
-          <div><img src="@/assets/images/icon-caret-right.svg" alt="caret-right" /></div>
+      <div class="budgets">
+        <div class="session-header">
+          <div class="session-header__title">Budgets</div>
+          <div class="session-header__action" @click="handleBudgetsDetails">
+            <div>See Details</div>
+            <div><img src="@/assets/images/icon-caret-right.svg" alt="caret-right" /></div>
+          </div>
+        </div>
+        <div class="budgets-body">
+          <BudgetsDoughnut :data="chartData" :limit="chartLimit" :spent="chartSpent" />
+          <div class="grid-details">
+            <div
+              class="grid-details__item"
+              v-for="(item, index) in budgetsToShow"
+              :key="`budget-${index}`"
+              :style="{ '--color-budget-border': item.theme }"
+            >
+              <div class="grid-details__item-label">{{ item.category }}</div>
+              <div class="grid-details__item-value">{{ formatAmount(item.spent ?? 0) }}</div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="details">
-        <div class="details__item details__paid">
-          <div class="details__item-label">Paid Bills</div>
-          <div class="details__item-value">
-            {{ formatAmount(billsWithSummary.paidBillsAmount ?? 0) }}
+
+      <div class="recurring-bills">
+        <div class="session-header">
+          <div class="session-header__title">Recurring Bills</div>
+          <div class="session-header__action" @click="handleRecurringBillsDetails">
+            <div>See Details</div>
+            <div><img src="@/assets/images/icon-caret-right.svg" alt="caret-right" /></div>
           </div>
         </div>
-        <div class="details__item details__upcoming">
-          <div class="details__item-label">Total Upcoming</div>
-          <div class="details__item-value">
-            {{ formatAmount(billsWithSummary.dueBillsAmount ?? 0) }}
+        <div class="details">
+          <div class="details__item details__paid">
+            <div class="details__item-label">Paid Bills</div>
+            <div class="details__item-value">
+              {{ formatAmount(billsWithSummary.paidBillsAmount ?? 0) }}
+            </div>
           </div>
-        </div>
-        <div class="details__item details__due">
-          <div class="details__item-label">Due Soon</div>
-          <div class="details__item-value">
-            {{ formatAmount(billsWithSummary.dueBillsLastFiveAmount ?? 0) }}
+          <div class="details__item details__upcoming">
+            <div class="details__item-label">Total Upcoming</div>
+            <div class="details__item-value">
+              {{ formatAmount(billsWithSummary.dueBillsAmount ?? 0) }}
+            </div>
+          </div>
+          <div class="details__item details__due">
+            <div class="details__item-label">Due Soon</div>
+            <div class="details__item-value">
+              {{ formatAmount(billsWithSummary.dueBillsLastFiveAmount ?? 0) }}
+            </div>
           </div>
         </div>
       </div>
@@ -204,58 +209,9 @@ const handleRecurringBillsDetails = () => {
 </template>
 <style lang="scss" scoped>
 .overview {
-  .session-header {
-    display: flex;
-    justify-content: space-between;
-
-    &__title {
-      @include text.text-styles('text-preset-2');
-      color: var(--color-grey-900);
-    }
-
-    &__action {
-      display: flex;
-      @include text.text-styles('text-preset-4');
-      color: var(--color-grey-500);
-      gap: var(--spacing-12);
-    }
-  }
-
-  .grid-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-16);
-
-    &__item {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-4);
-      position: relative;
-      padding-left: var(--spacing-16);
-
-      &::before {
-        content: '';
-        width: 4px;
-        background-color: var(--color-budget-border);
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        border-radius: var(--spacing-8);
-        z-index: 0;
-      }
-
-      &-label {
-        @include text.text-styles('text-preset-5');
-        color: var(--color-grey-500);
-      }
-      &-value {
-        @include text.text-styles('text-preset-4-bold');
-        color: var(--color-grey-900);
-      }
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
 
   .total {
     display: flex;
@@ -298,128 +254,54 @@ const handleRecurringBillsDetails = () => {
       }
     }
   }
-  .pots,
-  .transactions,
-  .budgets,
-  .recurring-bills {
-    background-color: var(--color-white);
-    padding: var(--spacing-24) var(--spacing-20);
-    border-radius: var(--spacing-12);
-    box-shadow: 0 var(--spacing-8) var(--spacing-24) 0 var(--color-shadow-1);
-    display: flex;
-    flex-direction: column;
-  }
-
-  .pots {
-    gap: var(--spacing-20);
-
-    .total {
+  .body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-16);
+    .session-header {
       display: flex;
-      flex-direction: row;
-      padding: var(--spacing-16);
+      justify-content: space-between;
+
+      &__title {
+        @include text.text-styles('text-preset-2');
+        color: var(--color-grey-900);
+      }
+
+      &__action {
+        display: flex;
+        @include text.text-styles('text-preset-4');
+        color: var(--color-grey-500);
+        gap: var(--spacing-12);
+      }
+    }
+
+    .grid-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: var(--spacing-16);
-      background-color: var(--color-beige-100);
-      border-radius: var(--spacing-12);
-      box-shadow: 0 var(--spacing-8) var(--spacing-24) 0 var(--color-shadow-1);
-
-      &__icon {
-        display: flex;
-        align-items: center;
-      }
-
-      &__content {
-        display: flex;
-        flex-direction: column;
-        gap: 11px;
-        &-label {
-          @include text.text-styles('text-preset-4');
-          color: var(--color-grey-500);
-        }
-        &-value {
-          @include text.text-styles('text-preset-1');
-          color: var(--color-grey-900);
-        }
-      }
-    }
-  }
-
-  .transactions {
-    gap: var(--spacing-32);
-
-    .details {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-20);
-
-      .item {
-        display: flex;
-        justify-content: space-between;
-
-        border-bottom: 1px solid var(--color-grey-100);
-        padding-bottom: var(--spacing-20);
-
-        &:last-child {
-          border-bottom: none;
-          padding-bottom: none;
-        }
-
-        &__user {
-          display: flex;
-          gap: var(--spacing-16);
-
-          &-avatar {
-            width: 32px;
-            height: 32px;
-
-            img {
-              width: 100%;
-              height: 100%;
-              border-radius: 50%;
-            }
-          }
-          &-name {
-            @include text.text-styles('text-preset-4-bold');
-            color: var(--color-grey-900);
-          }
-        }
-
-        &__content {
-          display: flex;
-          flex-direction: column;
-          align-items: end;
-          &-value {
-            @include text.text-styles('text-preset-4-bold');
-            color: var(--color-grey-900);
-          }
-          .positive {
-            color: var(--color-green);
-          }
-          &-time {
-            @include text.text-styles('text-preset-5');
-            color: var(--color-grey-500);
-          }
-        }
-      }
-    }
-  }
-
-  .recurring-bills {
-    gap: var(--spacing-32);
-
-    .details {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-12);
 
       &__item {
         display: flex;
-        justify-content: space-between;
-        border-radius: var(--spacing-8);
-        border-left: 4px solid var(--color-green);
-        padding: var(--spacing-20) var(--spacing-16);
-        background-color: var(--color-beige-100);
+        flex-direction: column;
+        gap: var(--spacing-4);
+        position: relative;
+        padding-left: var(--spacing-16);
+        justify-content: center;
+
+        &::before {
+          content: '';
+          width: 4px;
+          background-color: var(--color-budget-border);
+          position: absolute;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          border-radius: var(--spacing-8);
+          z-index: 0;
+        }
+
         &-label {
-          @include text.text-styles('text-preset-4');
+          @include text.text-styles('text-preset-5');
           color: var(--color-grey-500);
         }
         &-value {
@@ -427,15 +309,225 @@ const handleRecurringBillsDetails = () => {
           color: var(--color-grey-900);
         }
       }
+    }
 
-      &__paid {
-        border-left-color: var(--color-green);
+    .pots,
+    .transactions,
+    .budgets,
+    .recurring-bills {
+      background-color: var(--color-white);
+      padding: var(--spacing-24) var(--spacing-20);
+      border-radius: var(--spacing-12);
+      box-shadow: 0 var(--spacing-8) var(--spacing-24) 0 var(--color-shadow-1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pots {
+      // grid-area: pots;
+      gap: var(--spacing-20);
+
+      &-body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-20);
+
+        .total {
+          display: flex;
+          flex-direction: row;
+          padding: var(--spacing-16);
+          gap: var(--spacing-16);
+          background-color: var(--color-beige-100);
+          border-radius: var(--spacing-12);
+          box-shadow: 0 var(--spacing-8) var(--spacing-24) 0 var(--color-shadow-1);
+
+          &__icon {
+            display: flex;
+            align-items: center;
+          }
+
+          &__content {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            &-label {
+              @include text.text-styles('text-preset-4');
+              color: var(--color-grey-500);
+            }
+            &-value {
+              @include text.text-styles('text-preset-1');
+              color: var(--color-grey-900);
+            }
+          }
+        }
       }
-      &__upcoming {
-        border-left-color: var(--color-yellow);
+    }
+
+    .transactions {
+      // grid-area: transactions;
+      gap: var(--spacing-32);
+
+      .details {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-20);
+
+        .item {
+          display: flex;
+          justify-content: space-between;
+
+          border-bottom: 1px solid var(--color-grey-100);
+          padding-bottom: var(--spacing-20);
+
+          &:last-child {
+            border-bottom: none;
+            padding-bottom: none;
+          }
+
+          &__user {
+            display: flex;
+            gap: var(--spacing-16);
+
+            &-avatar {
+              width: 32px;
+              height: 32px;
+
+              img {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+              }
+            }
+            &-name {
+              @include text.text-styles('text-preset-4-bold');
+              color: var(--color-grey-900);
+            }
+          }
+
+          &__content {
+            display: flex;
+            flex-direction: column;
+            align-items: end;
+            &-value {
+              @include text.text-styles('text-preset-4-bold');
+              color: var(--color-grey-900);
+            }
+            .positive {
+              color: var(--color-green);
+            }
+            &-time {
+              @include text.text-styles('text-preset-5');
+              color: var(--color-grey-500);
+            }
+          }
+        }
       }
-      &__due {
-        border-left-color: var(--color-cyan);
+    }
+
+    .budgets {
+      gap: var(--spacing-20);
+      flex-direction: column;
+      &-body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-16);
+        padding: var(--spacing-8) 0;
+      }
+    }
+
+    .recurring-bills {
+      // grid-area: recurring;
+      gap: var(--spacing-32);
+
+      .details {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-12);
+
+        &__item {
+          display: flex;
+          justify-content: space-between;
+          border-radius: var(--spacing-8);
+          border-left: 4px solid var(--color-green);
+          padding: var(--spacing-20) var(--spacing-16);
+          background-color: var(--color-beige-100);
+          &-label {
+            @include text.text-styles('text-preset-4');
+            color: var(--color-grey-500);
+          }
+          &-value {
+            @include text.text-styles('text-preset-4-bold');
+            color: var(--color-grey-900);
+          }
+        }
+
+        &__paid {
+          border-left-color: var(--color-green);
+        }
+        &__upcoming {
+          border-left-color: var(--color-yellow);
+        }
+        &__due {
+          border-left-color: var(--color-cyan);
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 577px) {
+  .overview {
+    .total {
+      flex-direction: row;
+      &__balance,
+      &__income,
+      &__expenses {
+        flex: 1;
+      }
+    }
+
+    .body {
+      .pots {
+        // grid-row: 1;
+        // grid-column: 1;
+        &-body {
+          flex-direction: row;
+        }
+      }
+      .budgets {
+        // grid-row: 1 / 3;
+        // grid-column: 2;
+        &-body {
+          flex-direction: row;
+          justify-content: center;
+          & .grid-details {
+            grid-template-columns: 1fr;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 1025px) {
+  .overview {
+    .body {
+      grid-template-columns: 2fr 1fr;
+      .pots {
+        grid-row: 1;
+        grid-column: 1;
+      }
+      .budgets {
+        grid-row: 1 / 3;
+        grid-column: 2;
+      }
+      .transactions {
+        grid-row: 2 / 4;
+        grid-column: 1;
+      }
+      .recurring-bills {
+        grid-row: 3;
+        grid-column: 2;
       }
     }
   }

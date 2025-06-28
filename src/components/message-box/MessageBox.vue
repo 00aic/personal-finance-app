@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseDialog from '@/components/BaseDialog'
+import BaseDialog from '@/components/base-dialog'
 const visible = defineModel({ type: Boolean, default: false })
 interface Props {
   title?: string

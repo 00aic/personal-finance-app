@@ -2,8 +2,8 @@
 import { computed, ref, onMounted } from 'vue'
 import UpsertPot from './UpsertPot.vue'
 import { getPots, deletePotById, updatePot, addPot, upsertPotMoney } from '@/api/modules/pots'
-import DropdownButton from '@/components/DropdownButton'
-import ConfirmationDialog from '@/components/ConfirmationDialog'
+import DropdownButton from '@/components/dropdown-button'
+import ConfirmationDialog from '@/components/confirmation-dialog'
 import UpsertMoney from './UpsertMoney.vue'
 import type { Pot } from '@/types/pot'
 import AmountChart from './AmountChart.vue'
@@ -157,8 +157,8 @@ const handlePotUpsert = async (total: number) => {
   }
 
   .details {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: var(--spacing-24);
 
     .item {
@@ -209,6 +209,14 @@ const handlePotUpsert = async (total: number) => {
           border: 1px solid var(--color-grey-200);
         }
       }
+    }
+  }
+}
+
+@media (min-width: 1025px) {
+  .pots {
+    .details {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 }

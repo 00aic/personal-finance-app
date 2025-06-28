@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import BaseDialog from '@/components/BaseDialog'
+import BaseDialog from '@/components/base-dialog'
 import type { Budget } from '@/types/budget'
 import { computed, ref, watch } from 'vue'
-import FormItem from '@/components/FormItem'
-import SelectPicker from '@/components/SelectPicker'
+import FormItem from '@/components/form-item'
+import SelectPicker from '@/components/select-picker'
 import { CATEGORY_OPTIONS } from '@/constants/categories'
 import { COLOR_OPTIONS } from '@/constants/colors'
-import BaseInput from '@/components/BaseInput'
+import BaseInput from '@/components/base-input'
 import * as yup from 'yup'
 import { useForm } from 'vee-validate'
 

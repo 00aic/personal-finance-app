@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getTransactionsByPage } from '@/api/modules/transactions'
-import SearchInput from '@/components/SearchInput'
-import SelectPicker from '@/components/SelectPicker'
+import SearchInput from '@/components/search-input'
+import SelectPicker from '@/components/select-picker'
 import { useImageUrl } from '@/composables/useImageUrl'
 import type { Transaction } from '@/types/transaction'
 import { computed, onMounted, ref } from 'vue'
@@ -150,28 +150,31 @@ const handleShowEllipsisPage = async () => {
         </div>
       </div>
       <div class="details">
+        <div class="title">
+          <div></div>
+          <div class="title__user">Recipient/Sender</div>
+          <div class="title__category">Category</div>
+          <div class="title__date">Transaction Date</div>
+          <div class="title__amount">Amount</div>
+        </div>
         <div class="item" v-for="(item, index) in transactions" :key="index">
-          <div class="user">
-            <div class="user__avatar">
-              <img :src="useImageUrl(item.avatar).value" alt="avatar" />
-            </div>
-            <div class="user__info">
-              <div class="user__info-name">{{ item.name }}</div>
-              <div class="user__info-category">{{ item.category }}</div>
-            </div>
+          <div class="item__avatar">
+            <img :src="useImageUrl(item.avatar).value" alt="avatar" />
           </div>
-          <div class="value">
-            <div class="value__amount" :class="{ positive: item.amount >= 0 }">
-              {{ item.amount > 0 ? '+' : '' }} {{ formatNumber(item.amount, { currency: 'USD' }) }}
-            </div>
-            <div class="value__date">{{ formatIntlDate(item.date) }}</div>
+          <div class="item__name">{{ item.name }}</div>
+          <div class="item__category">{{ item.category }}</div>
+
+          <div class="item__amount" :class="{ positive: item.amount >= 0 }">
+            {{ item.amount > 0 ? '+' : '' }} {{ formatNumber(item.amount, { currency: 'USD' }) }}
           </div>
+          <div class="item__date">{{ formatIntlDate(item.date) }}</div>
         </div>
       </div>
 
       <div class="pagination">
         <div class="prev" @click="handlePrevPage">
           <img src="@/assets/images/icon-caret-left.svg" alt="prev" />
+          <div class="prev__label">Prev</div>
         </div>
         <div class="page">
           <template v-for="page in pageList" :key="`page${page.value}`">
@@ -192,6 +195,7 @@ const handleShowEllipsisPage = async () => {
           </template>
         </div>
         <div class="next" @click="handleNextPage">
+          <div class="next__label">Next</div>
           <img src="@/assets/images/icon-caret-right.svg" alt="next" />
         </div>
       </div>
@@ -230,10 +234,18 @@ const handleShowEllipsisPage = async () => {
       flex-direction: column;
       gap: var(--spacing-16);
 
+      .title {
+        display: none;
+      }
+
       .item {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
         align-items: center;
+        grid-template-areas:
+          'avatar name amount'
+          'avatar category date';
+        grid-template-columns: 36px 1fr auto;
+        column-gap: var(--spacing-12);
 
         border-bottom: 1px solid var(--color-grey-100);
         padding-bottom: var(--spacing-16);
@@ -243,53 +255,43 @@ const handleShowEllipsisPage = async () => {
           padding-bottom: none;
         }
 
-        .user {
+        &__avatar {
+          grid-area: avatar;
+          width: 32px;
+          height: 32px;
           display: flex;
-          gap: var(--spacing-12);
-          align-items: center;
 
-          &__avatar {
-            width: 32px;
-            height: 32px;
-            display: flex;
-
-            img {
-              width: 100%;
-              height: 100%;
-              border-radius: 50%;
-            }
-          }
-
-          &__info {
-            &-name {
-              @include text.text-styles('text-preset-4-bold');
-              color: var(--color-grey-900);
-            }
-            &-category {
-              @include text.text-styles('text-preset-5');
-              color: var(--color-grey-500);
-            }
+          img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
           }
         }
+        &__name {
+          grid-area: name;
+          @include text.text-styles('text-preset-4-bold');
+          color: var(--color-grey-900);
+        }
+        &__category {
+          grid-area: category;
+          @include text.text-styles('text-preset-5');
+          color: var(--color-grey-500);
+        }
 
-        .value {
-          display: flex;
-          flex-direction: column;
-          align-items: end;
+        &__amount {
+          grid-area: amount;
+          @include text.text-styles('text-preset-4-bold');
+          color: var(--color-grey-900);
+        }
 
-          &__amount {
-            @include text.text-styles('text-preset-4-bold');
-            color: var(--color-grey-900);
-          }
+        .positive {
+          color: var(--color-green);
+        }
 
-          .positive {
-            color: var(--color-green);
-          }
-
-          &__date {
-            @include text.text-styles('text-preset-5');
-            color: var(--color-grey-500);
-          }
+        &__date {
+          grid-area: date;
+          @include text.text-styles('text-preset-5');
+          color: var(--color-grey-500);
         }
       }
     }
@@ -311,6 +313,9 @@ const handleShowEllipsisPage = async () => {
         display: flex;
         align-items: center;
         justify-content: center;
+        &__label {
+          display: none;
+        }
       }
 
       .page {
@@ -322,6 +327,68 @@ const handleShowEllipsisPage = async () => {
         .active {
           background-color: var(--color-grey-900);
           color: var(--color-white);
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 577px) {
+  .transactions {
+    .content {
+      padding: var(--spacing-32);
+      .details {
+        padding-left: var(--spacing-16);
+        padding-right: var(--spacing-16);
+        .title {
+          display: grid;
+          grid-template-columns: 32px 2fr 1fr 1fr 1fr;
+          column-gap: var(--spacing-16);
+          padding: var(--spacing-12) 0;
+          border-bottom: 1px solid var(--color-grey-100);
+          @include text.text-styles('text-preset-5');
+          color: var(--color-grey-500);
+
+          &__user {
+            margin-left: -48px;
+          }
+
+          &__category,
+          &__date {
+            justify-self: start;
+          }
+
+          &__amount {
+            justify-self: end;
+          }
+        }
+        .item {
+          grid-template-areas: 'avatar name category date amount';
+          grid-template-columns: 32px 2fr 1fr 1fr 1fr;
+          column-gap: var(--spacing-16);
+
+          &__category,
+          &__date {
+            justify-self: start;
+          }
+
+          &__amount {
+            justify-self: end;
+          }
+        }
+      }
+      .pagination {
+        .prev,
+        .next {
+          display: flex;
+          gap: var(--spacing-16);
+          width: auto;
+
+          &__label {
+            display: block;
+            @include text.text-styles('text-preset-4');
+            color: var(--color-grey-900);
+          }
         }
       }
     }

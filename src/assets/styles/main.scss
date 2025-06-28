@@ -49,7 +49,6 @@ body {
 .common-layout-page {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-24) var(--spacing-16);
   gap: var(--spacing-32);
 
   .header {

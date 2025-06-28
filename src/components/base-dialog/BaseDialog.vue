@@ -84,6 +84,14 @@ const handleClose = () => {
   }
 }
 
+@media (min-width: 577px) {
+  .dialog {
+    &-container {
+      width: 560px;
+    }
+  }
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;

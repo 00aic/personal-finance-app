@@ -34,13 +34,12 @@ const handleDropdown = () => {
   isOpen.value = !isOpen.value
 }
 
-// 手机媒介
-const isMobileMedia = useMediaQuery('(max-width: 375px)')
-console.log('isMobileMedia', isMobileMedia)
+// 非手机媒介
+const isNotMobileMedia = useMediaQuery('(min-width: 577px)')
 
 // 是否根据手机媒介显示手机样式
 const isMobile = computed(() => {
-  return isMobileMedia.value && props.imgSrc
+  return !isNotMobileMedia.value && props.imgSrc
 })
 
 const mobileImg = computed(() => {

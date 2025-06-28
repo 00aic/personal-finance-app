@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import BaseDialog from '@/components/BaseDialog'
+import BaseDialog from '@/components/base-dialog'
 import type { Pot } from '@/types/pot'
 import { computed, ref, watch } from 'vue'
 import { COLOR_OPTIONS } from '@/constants/colors'
-import SelectPicker from '@/components/SelectPicker'
-import FormItem from '@/components/FormItem'
+import SelectPicker from '@/components/select-picker'
+import FormItem from '@/components/form-item'
 import * as yup from 'yup'
 import { useForm } from 'vee-validate'
-import BaseInput from '@/components/BaseInput'
+import BaseInput from '@/components/base-input'
 
 const visible = defineModel<boolean>({ default: false })
 
