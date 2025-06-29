@@ -66,12 +66,19 @@ const handleConfirm = () => {
       border: 1px solid var(--color-grey-200);
       @include text.text-styles('text-preset-4-bold');
       color: var(--color-white);
+      &:hover {
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), var(--color-red);
+      }
     }
     &-cancel {
       @include text.text-styles('text-preset-4');
       color: var(--color-grey-500);
       border: none;
       background-color: var(--color-white);
+      &:hover {
+        color: var(--color-grey-900);
+      }
     }
   }
 }

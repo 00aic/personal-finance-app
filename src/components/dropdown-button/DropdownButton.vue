@@ -51,6 +51,7 @@ useClickOutside(dropdownButtonRef, closeDropdown)
   .header {
     display: flex;
     align-items: center;
+    cursor: pointer;
   }
 
   .options {

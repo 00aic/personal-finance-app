@@ -10,6 +10,7 @@ import { formatNumber } from '@/utils/numberUtils'
 import { useRoute } from 'vue-router'
 import { CATEGORY_OPTIONS_WITH_ALL } from '@/constants/categories'
 import { SORT_OPTIONS } from '@/constants/sort'
+import { useMediaQuery } from '@vueuse/core'
 
 const route = useRoute()
 
@@ -87,10 +88,13 @@ const handleSelectPage = async (page: number) => {
   curentPage.value = page
   await getTransactions()
 }
+// 非手机媒介
+const isNotMobileMedia = ref(useMediaQuery('(min-width: 577px)'))
 // 界面总共显示的页码按钮数，默认手机下为4个按钮数
-const showPageNumber = ref<number>(4)
+const showPageNumber = computed(() => (isNotMobileMedia.value ? 8 : 4))
+
 // 需要显示页码省略号的位置索引，1开始
-const showEllipsisIndex = ref<number>(showPageNumber.value / 2 + 1)
+const showEllipsisIndex = computed(() => showPageNumber.value / 2 + 1)
 // 开始页码
 const startPage = ref<number>(1)
 
@@ -99,21 +103,20 @@ const pageList = computed(() => {
   const pageList = []
   const tempTotalPage = totalPage.value - (startPage.value - 1)
   if (tempTotalPage <= showPageNumber.value) {
-    for (let index = startPage.value; index <= tempTotalPage; index++) {
+    for (let index = startPage.value; index <= totalPage.value; index++) {
       pageList.push({ type: 'page', value: index })
     }
   } else {
-    for (let index = startPage.value; index < showPageNumber.value; index++) {
-      if (index === showEllipsisIndex.value) {
+    for (let index = startPage.value; index <= totalPage.value; index++) {
+      if (index === showEllipsisIndex.value + (startPage.value - 1)) {
         pageList.push({ type: 'ellipsis', value: 0 })
+        index = totalPage.value - (showPageNumber.value - showEllipsisIndex.value)
       } else {
         pageList.push({ type: 'page', value: index })
       }
     }
   }
-  if (tempTotalPage !== 1) {
-    pageList.push({ type: 'page', value: totalPage.value })
-  }
+
   return pageList
 })
 // 处理省略号页码逻辑
@@ -181,11 +184,12 @@ const handleShowEllipsisPage = async () => {
             <div
               v-if="page.type === 'page'"
               @click="handleSelectPage(Number(page.value))"
+              class="page__item"
               :class="{ active: page.value === curentPage }"
             >
               {{ page.value }}
             </div>
-            <div v-else>
+            <div v-else class="page__item">
               <img
                 src="@/assets/images/icon-ellipsis.svg"
                 alt="ellipsis"
@@ -303,7 +307,7 @@ const handleShowEllipsisPage = async () => {
 
       .prev,
       .next,
-      .page > div {
+      .page__item {
         padding: var(--spacing-16);
         border-radius: var(--spacing-8);
         border: 1px solid var(--color-beige-500);
@@ -313,6 +317,19 @@ const handleShowEllipsisPage = async () => {
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
+        &:hover {
+          background-color: var(--color-beige-500);
+          color: var(--color-white);
+          .next__label,
+          .prev__label {
+            color: var(--color-white);
+          }
+        }
+      }
+
+      .prev,
+      .next {
         &__label {
           display: none;
         }

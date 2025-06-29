@@ -48,6 +48,7 @@ watch(searchValue, (newValue: string) => {
   background-color: var(--color-white);
   border: 1px solid var(--color-beige-500);
   max-width: 320px;
+  cursor: pointer;
   input {
     border: none;
     outline: none;
@@ -55,6 +56,7 @@ watch(searchValue, (newValue: string) => {
     flex: 1;
     @include text.text-styles('text-preset-4');
     color: var(--color-grey-900);
+    cursor: pointer;
 
     &::placeholder {
       color: var(--color-beige-500);

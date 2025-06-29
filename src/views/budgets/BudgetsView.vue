@@ -226,6 +226,10 @@ const handleBudgetUpdate = async (budget: Budget) => {
       border: 1px solid var(--color-grey-200);
       @include text.text-styles('text-preset-4-bold');
       color: var(--color-white);
+      cursor: pointer;
+      &:hover {
+        background-color: var(--color-grey-500);
+      }
     }
   }
   .content {

@@ -10,13 +10,13 @@
 }
 
 /* 粗体 */
-@font-face {
-  font-family: 'Public Sans';
-  src: url('@/assets/fonts/static/PublicSans-Bold.ttf') format('truetype');
-  font-weight: 700 bold;
-  font-style: normal;
-  font-display: swap; /* 优化加载时的字体闪烁问题 */
-}
+// @font-face {
+//   font-family: 'Public Sans';
+//   src: url('@/assets/fonts/static/PublicSans-Bold.ttf') format('truetype');
+//   font-weight: 700 bold;
+//   font-style: normal;
+//   font-display: swap; /* 优化加载时的字体闪烁问题 */
+// }
 
 *,
 *::before,

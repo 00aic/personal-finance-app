@@ -92,6 +92,7 @@ const chartOptions = computed<ChartOptions<'doughnut'>>(() => ({
   display: flex;
   justify-content: center;
   margin-bottom: 32px;
+  cursor: pointer;
 }
 
 .chart-wrapper {

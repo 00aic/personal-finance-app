@@ -120,5 +120,6 @@ const handleUpsert = handleSubmit(() => {
   width: 100%;
   @include text.text-styles('text-preset-4-bold');
   color: var(--color-white);
+  cursor: pointer;
 }
 </style>

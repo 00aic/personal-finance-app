@@ -24,7 +24,7 @@ const handleClose = () => {
         <div class="dialog-container" v-if="visible">
           <div class="dialog__header">
             <div class="dialog__header-title">{{ title }}</div>
-            <div v-if="showClose" @click="handleClose">
+            <div v-if="showClose" class="dialog__header-icon" @click="handleClose">
               <img src="@/assets/images/icon-close-modal.svg" alt="close" />
             </div>
           </div>
@@ -74,6 +74,9 @@ const handleClose = () => {
     &-title {
       @include text.text-styles('text-preset-2');
       color: var(--color-grey-900);
+    }
+    &-icon {
+      cursor: pointer;
     }
   }
 

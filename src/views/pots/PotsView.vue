@@ -153,6 +153,10 @@ const handlePotUpsert = async (total: number) => {
       border: 1px solid var(--color-grey-200);
       @include text.text-styles('text-preset-4-bold');
       color: var(--color-white);
+      cursor: pointer;
+      &:hover {
+        background-color: var(--color-grey-500);
+      }
     }
   }
 
@@ -207,6 +211,10 @@ const handlePotUpsert = async (total: number) => {
           border-radius: var(--spacing-8);
           background-color: var(--color-beige-100);
           border: 1px solid var(--color-grey-200);
+          cursor: pointer;
+          &:hover {
+            background-color: var(--color-white);
+          }
         }
       }
     }

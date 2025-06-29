@@ -35,7 +35,7 @@ const handleDropdown = () => {
 }
 
 // 非手机媒介
-const isNotMobileMedia = useMediaQuery('(min-width: 577px)')
+const isNotMobileMedia = ref(useMediaQuery('(min-width: 577px)'))
 
 // 是否根据手机媒介显示手机样式
 const isMobile = computed(() => {
@@ -66,6 +66,7 @@ useClickOutside(selectPickerRef, closeDropdown)
         <img :src="mobileImg" alt="abbrev" />
       </div>
       <ul class="options" v-if="isOpen" :style="{ width: width }">
+        <li v-if="isMobile" class="options__label">{{ label }}</li>
         <li
           v-for="option in options"
           :key="option.value"
@@ -147,6 +148,13 @@ useClickOutside(selectPickerRef, closeDropdown)
 
       @media (min-width: 376px) {
         left: 0;
+      }
+
+      &__label {
+        @include text.text-styles('text-preset-4');
+        color: var(--color-grey-500);
+        border-bottom: 1px solid var(--color-grey-100);
+        padding-bottom: var(--spacing-12);
       }
 
       &__option {
