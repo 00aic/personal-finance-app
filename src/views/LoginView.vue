@@ -146,7 +146,7 @@ const handleToLogin = () => {
         </button>
         <div class="container__footer">
           <span class="container__footer-tip">{{ footerTip }}</span>
-          <span class="container__footer-sign" @click="handleToLoginAndSign">{{
+          <span class="container__footer-action" @click="handleToLoginAndSign">{{
             footerAction
           }}</span>
         </div>
@@ -228,6 +228,7 @@ const handleToLogin = () => {
         border: 1px solid var(--color-grey-200);
         color: var(--color-white);
         @include text.text-styles('text-preset-4-bold');
+        cursor: pointer;
       }
 
       &__footer {
@@ -240,10 +241,11 @@ const handleToLogin = () => {
           color: var(--color-grey-500);
         }
 
-        &-sign {
+        &-action {
           @include text.text-styles('text-preset-4-bold');
           color: var(--color-grey-900);
           text-decoration: underline;
+          cursor: pointer;
         }
       }
     }

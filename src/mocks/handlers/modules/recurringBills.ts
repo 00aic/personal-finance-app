@@ -5,7 +5,7 @@ import {
   getRecurringBillsBySort,
 } from '@/mocks/db/recurringBills.mocks'
 import type { ApiResponse } from '@/mocks/mock'
-import type { RecurringBill } from '@/types/RecurringBill'
+import type { RecurringBill } from '@/types/recurringBill'
 import type { Sort } from '@/types/transaction'
 import { delay, http, HttpResponse } from 'msw'
 

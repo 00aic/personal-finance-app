@@ -1,4 +1,4 @@
-import type { RecurringBill } from '@/types/RecurringBill'
+import type { RecurringBill } from '@/types/recurringBill'
 import { getAllTransactions } from './transactions.mocks'
 import type { Sort } from '@/types/transaction'
 
