@@ -1,0 +1,1 @@
+import{h as o}from"./illustration-authentication-BmoVJKBC.js";const r=()=>o.get("/pots"),p=t=>o.post("/pots",t),n=t=>o.put("/pots",t),a=t=>o.delete(`/pots/${t}`),u=(t,s)=>o.post(`/pots/${t}`,{total:s});export{p as a,u as b,a as d,r as g,n as u};

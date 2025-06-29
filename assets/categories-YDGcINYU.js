@@ -1,0 +1,1 @@
+const n=["Entertainment","Bills","Groceries","Dining Out","Transportation","Personal Care","Education","Lifestyle","Shopping","General"],l=n.map(a=>({label:a,value:a})),e=[{label:"All Transactions",value:"all"},...l];export{e as C,l as a};

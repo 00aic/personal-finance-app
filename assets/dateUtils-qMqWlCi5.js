@@ -1,0 +1,1 @@
+const D=(t,s={})=>{const{locale:i="en-GB",prefix:c="",year:e,month:a,day:n,weekday:o}=s,r=typeof t=="string"?new Date(t):t;if(isNaN(r.getTime()))return"Invalid Date";const f={...e||a||n?{}:{day:"2-digit",month:"short",year:"numeric"},...e?{year:e}:{},...a?{month:a}:{},...n?{day:n}:{},...o?{weekday:o}:{}},m=new Intl.DateTimeFormat(i,f);return`${c} ${m.format(r)}`};export{D as f};
