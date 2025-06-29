@@ -13,6 +13,7 @@ import { useForm } from 'vee-validate'
 const visible = defineModel<boolean>({ default: false })
 interface Props {
   data?: Budget
+  usedTheme: string[]
 }
 const props = defineProps<Props>()
 const title = computed(() => {
@@ -92,6 +93,8 @@ const handleUpsert = handleSubmit(() => {
           :options="COLOR_OPTIONS"
           class="form__select"
           width="100%"
+          type="color"
+          :used-values="usedTheme"
         />
       </FormItem>
     </form>

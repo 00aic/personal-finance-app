@@ -13,8 +13,12 @@ interface Props {
   label?: string
   imgSrc?: string
   width?: string
+  type?: string
+  usedValues?: (string | number)[]
 }
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  usedValues: () => [],
+})
 
 const isOpen = ref<boolean>(false)
 
@@ -22,12 +26,15 @@ const selected = defineModel<string | number>()
 const selectedOption = computed(() =>
   props.options.find((option) => option.value === selected.value),
 )
+const originSelected = selected.value
 
 const emit = defineEmits<{ select: [value: string | number] }>()
 const handleSelect = (option: Option) => {
-  isOpen.value = false
-  selected.value = option.value
-  emit('select', option.value) // 不要用selected.value
+  if (hasPointer(option.value)) {
+    isOpen.value = false
+    selected.value = option.value
+    emit('select', option.value) // 不要用selected.value
+  }
 }
 
 const handleDropdown = () => {
@@ -51,6 +58,15 @@ const closeDropdown = () => {
 }
 const selectPickerRef = useTemplateRef('selectPickerRef')
 useClickOutside(selectPickerRef, closeDropdown)
+
+const isUsed = (value: string | number) => {
+  return props.usedValues?.includes(value)
+}
+
+const hasPointer = (value: string | number) => {
+  const isUsedValue = isUsed(value)
+  return !isUsedValue || (isUsedValue && originSelected === value)
+}
 </script>
 <template>
   <div class="select" ref="selectPickerRef">
@@ -72,9 +88,37 @@ useClickOutside(selectPickerRef, closeDropdown)
           :key="option.value"
           @click="handleSelect(option)"
           class="options__option"
-          :class="{ options__selected: option.value === selected }"
+          :class="{ 'options__option--has-pointer': hasPointer(option.value) }"
+          :style="type && type === 'color' ? { '--color-theme': option.value } : {}"
         >
-          {{ option.label }}
+          <div
+            class="options__option-circle"
+            v-if="type && type === 'color'"
+            :class="{ 'options__option-circle--used': !hasPointer(option.value) }"
+          ></div>
+          <div
+            class="options__option-label"
+            :class="{
+              'options__option--selected': option.value === selected,
+              'options__option-label--used': !hasPointer(option.value),
+            }"
+          >
+            {{ option.label }}
+          </div>
+          <div
+            v-if="type && type === 'color' && option.value === selected"
+            class="options__option-color--selected"
+          >
+            <img src="@/assets/images/icon-selected.svg" alt="selected" />
+          </div>
+          <div
+            v-if="
+              isUsed(option.value) && option.value !== selected && option.value !== originSelected
+            "
+            class="options__option--used"
+          >
+            Aready Used
+          </div>
         </li>
       </ul>
     </div>
@@ -160,15 +204,52 @@ useClickOutside(selectPickerRef, closeDropdown)
       &__option {
         border-bottom: 1px solid var(--color-grey-100);
         padding-bottom: var(--spacing-12);
-        cursor: pointer;
+        display: flex;
+        gap: var(--spacing-12);
+        align-items: center;
         &:last-child {
           border-bottom: none;
           padding-bottom: 0;
         }
-      }
 
-      &__selected {
-        @include text.text-styles('text-preset-4-bold');
+        &-circle {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background-color: var(--color-theme);
+          &--used {
+            opacity: 0.1;
+          }
+        }
+
+        &-label {
+          color: var(--color-grey-900);
+          &--used {
+            color: var(--color-grey-500);
+          }
+        }
+
+        &--selected {
+          @include text.text-styles('text-preset-4-bold');
+        }
+
+        &-color {
+          &--selected {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+          }
+        }
+
+        &--used {
+          @include text.text-styles('text-preset-5');
+          color: var(--color-grey-500);
+          margin-left: auto;
+        }
+
+        &--has-pointer {
+          cursor: pointer;
+        }
       }
     }
   }

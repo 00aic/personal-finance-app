@@ -54,6 +54,7 @@ const handleSeeAll = (category: Category) => {
   })
 }
 
+const alreadyUsedTheme = computed(() => budgets.value.map((item) => item.theme))
 const showAddDialog = ref<boolean>(false)
 const handleShowAddDialog = () => {
   showAddDialog.value = true
@@ -111,7 +112,11 @@ const handleBudgetUpdate = async (budget: Budget) => {
       <button class="add" @click="handleShowAddDialog">+Add New Budget</button>
     </div>
 
-    <UpsertBudget v-model="showAddDialog" @upsert="handleBudgetAdd" />
+    <UpsertBudget
+      :used-theme="alreadyUsedTheme"
+      v-model="showAddDialog"
+      @upsert="handleBudgetAdd"
+    />
 
     <div class="content">
       <div class="summary">
@@ -211,7 +216,12 @@ const handleBudgetUpdate = async (budget: Budget) => {
       @confirm="handleBudgetDelete(currentItem.category)"
     />
 
-    <UpsertBudget :data="currentItem" v-model="showEditDialog" @upsert="handleBudgetUpdate" />
+    <UpsertBudget
+      :used-theme="alreadyUsedTheme"
+      :data="currentItem"
+      v-model="showEditDialog"
+      @upsert="handleBudgetUpdate"
+    />
   </div>
 </template>
 <style lang="scss" scoped>
