@@ -8,6 +8,7 @@ import * as yup from 'yup'
 import { useForm } from 'vee-validate'
 import FormItem from '@/components/form-item'
 import MessageBox from '@/components/message-box'
+import logger from '@/utils/logger'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -71,7 +72,7 @@ const handleLogin = handleSubmit(async () => {
       showMessageBox.value = true
     }
   } catch (error) {
-    console.log(error)
+    logger.error(error)
   }
 })
 
@@ -81,7 +82,7 @@ const handleSignUp = handleSubmit(async () => {
     messageBoxMsg.value = 'Create account successfully.'
     showMessageBox.value = true
   } catch (error) {
-    console.log(error)
+    logger.error(error)
     messageBoxMsg.value = 'Failed to create account.'
     showMessageBox.value = true
   }
